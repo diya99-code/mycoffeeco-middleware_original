@@ -5,9 +5,10 @@ const express = require("express");
 const app = express();
 
 const customerRoutes = require("./routes/customers");
-const loyaltyRoutes = require("./routes/loyalty");
-const orderRoutes = require("./routes/orders");
-const menuRoutes = require("./routes/menu");
+const loyaltyRoutes  = require("./routes/loyalty");
+const orderRoutes    = require("./routes/orders");
+const menuRoutes     = require("./routes/menu");
+const shopifyRoutes  = require("./routes/shopify");
 
 app.use(express.json());
 
@@ -26,9 +27,10 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/customers", customerRoutes);
-app.use("/loyalty", loyaltyRoutes);
-app.use("/orders", orderRoutes);
-app.use("/api/menu", menuRoutes);
+app.use("/loyalty",   loyaltyRoutes);
+app.use("/orders",    orderRoutes);
+app.use("/api/menu",  menuRoutes);
+app.use("/shopify",   shopifyRoutes);
 
 // Global error handler — catches any unhandled errors from routes/controllers
 app.use((err, _req, res, _next) => {
