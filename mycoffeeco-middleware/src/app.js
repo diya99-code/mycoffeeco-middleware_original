@@ -4,11 +4,13 @@ const express = require("express");
 
 const app = express();
 
-const customerRoutes = require("./routes/customers");
-const loyaltyRoutes  = require("./routes/loyalty");
-const orderRoutes    = require("./routes/orders");
-const menuRoutes     = require("./routes/menu");
-const shopifyRoutes  = require("./routes/shopify");
+const customerRoutes    = require("./routes/customers");
+const loyaltyRoutes     = require("./routes/loyalty");
+const orderRoutes       = require("./routes/orders");
+const menuRoutes        = require("./routes/menu");
+const shopifyRoutes     = require("./routes/shopify");
+const authRoutes        = require("./routes/auth");
+const directOrderRoutes = require("./routes/directOrder");
 
 app.use(express.json());
 
