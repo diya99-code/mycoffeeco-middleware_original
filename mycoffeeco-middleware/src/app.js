@@ -28,6 +28,11 @@ app.get("/", (_req, res) => {
     res.send("Middleware Running");
 });
 
+// Keep-alive endpoint for cron pings to prevent Render free tier spin-down
+app.get("/ping", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.use("/customers", customerRoutes);
 app.use("/loyalty",   loyaltyRoutes);
 app.use("/orders",    orderRoutes);
