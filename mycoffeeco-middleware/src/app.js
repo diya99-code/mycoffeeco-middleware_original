@@ -12,7 +12,14 @@ const shopifyRoutes     = require("./routes/shopify");
 const authRoutes        = require("./routes/auth");
 const directOrderRoutes = require("./routes/directOrder");
 
-app.use(express.json());
+// Apply express.json() globally EXCEPT for /orders/create
+// which needs the raw body buffer for Shopify HMAC verification
+app.use((req, res, next) => {
+    if (req.path === "/orders/create" && req.method === "POST") {
+        return next(); // skip — express.raw() is applied per-route
+    }
+    express.json()(req, res, next);
+});
 
 // CORS — allow Shopify storefront and any browser to call /api/menu
 app.use((req, res, next) => {
@@ -33,11 +40,13 @@ app.get("/ping", (_req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-app.use("/customers", customerRoutes);
-app.use("/loyalty",   loyaltyRoutes);
-app.use("/orders",    orderRoutes);
-app.use("/api/menu",  menuRoutes);
-app.use("/shopify",   shopifyRoutes);
+app.use("/customers",    customerRoutes);
+app.use("/loyalty",      loyaltyRoutes);
+app.use("/orders",       orderRoutes);
+app.use("/api/menu",     menuRoutes);
+app.use("/shopify",      shopifyRoutes);
+app.use("/auth",         authRoutes);
+app.use("/direct-order", directOrderRoutes);
 
 // Global error handler — catches any unhandled errors from routes/controllers
 app.use((err, _req, res, _next) => {
