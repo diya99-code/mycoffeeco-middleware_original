@@ -242,11 +242,13 @@ exports.mapShopifyOrderToRista = (shopifyOrder) => {
         itemTotalAmount:
             Number(shopifyOrder.subtotal_price || 0),
 
-        discountAmount:
-            Number(shopifyOrder.total_discounts || 0),
+        ...(Number(shopifyOrder.total_discounts || 0) > 0 && {
+            discountAmount: -Math.abs(Number(shopifyOrder.total_discounts))
+        }),
 
-        taxAmountIncluded:
-            Number(shopifyOrder.total_tax || 0),
+        ...(Number(shopifyOrder.total_tax || 0) > 0 && {
+            taxAmountIncluded: Number(shopifyOrder.total_tax)
+        }),
 
         billAmount:
             Number(shopifyOrder.total_price || 0),
@@ -257,8 +259,9 @@ exports.mapShopifyOrderToRista = (shopifyOrder) => {
         totalAmount:
             Number(shopifyOrder.total_price || 0),
 
-        tipAmount:
-            Number(shopifyOrder.total_tip_received || 0),
+        ...(Number(shopifyOrder.total_tip_received || 0) > 0 && {
+            tipAmount: Number(shopifyOrder.total_tip_received)
+        }),
 
         //----------------------------------------------------
         // Shipping Charges
