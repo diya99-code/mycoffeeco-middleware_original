@@ -10,6 +10,10 @@ exports.createOrder = async (req, res) => {
         const result = await orderService.createOrder(req.body);
 
         console.log("Rista order result:", JSON.stringify(result).slice(0, 200));
+        if (result.url) {
+            console.log("Rista order URL:", result.url);
+        }
+        console.log("Rista invoice number:", result.invoiceNumber);
         res.json(result);
 
     } catch (err) {
