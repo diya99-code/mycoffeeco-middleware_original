@@ -12,6 +12,12 @@ exports.createOrder = async (shopifyOrder) => {
 
     const payload = mapShopifyOrderToRista(shopifyOrder);
 
+    console.log("Sending to Rista POST /sale");
+    console.log("Branch:", payload.branchCode);
+    console.log("Channel:", payload.channel);
+    console.log("Items count:", payload.items?.length);
+    console.log("Total:", payload.totalAmount);
+
     return await ristaClient.post(
         "/sale",
         payload,

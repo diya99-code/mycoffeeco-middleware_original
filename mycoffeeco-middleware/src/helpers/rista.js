@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const BASE_URL = process.env.RISTA_BASE_URL;
+console.log("[rista.js] BASE_URL on startup:", BASE_URL);
 
 /**
  * Generate JWT token for Rista API
