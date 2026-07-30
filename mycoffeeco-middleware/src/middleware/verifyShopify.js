@@ -53,16 +53,23 @@ function verifyShopify(req, res, next) {
     );
 
     if (!isValid) {
+        console.error("HMAC verification FAILED");
+        console.error("Expected digest:", digest);
+        console.error("Received header:", hmacHeader);
         return res.status(401).json({
             success: false,
             error: "Invalid Shopify HMAC signature"
         });
     }
 
+    console.log("HMAC verification PASSED — parsing body...");
+
     // Parse the JSON body manually since we used express.raw()
     try {
         req.body = JSON.parse(rawBody.toString("utf8"));
+        console.log("Body parsed successfully, calling next...");
     } catch {
+        console.error("Failed to parse JSON body");
         return res.status(400).json({
             success: false,
             error: "Invalid JSON body"
