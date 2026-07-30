@@ -146,7 +146,9 @@ exports.mapShopifyOrderToRista = (shopifyOrder) => {
         // Channel
         //----------------------------------------------------
 
-        channel: "Shopify",
+        // Use "Takeaway" as the default channel for Shopify online orders.
+        // Change to "Delivery" if you want delivery orders routed differently.
+        channel: process.env.SHOPIFY_RISTA_CHANNEL || "Takeaway",
 
         //----------------------------------------------------
         // Products
