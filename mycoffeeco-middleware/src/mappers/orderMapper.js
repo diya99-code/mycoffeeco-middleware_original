@@ -35,10 +35,15 @@ exports.mapShopifyOrderToRista = (shopifyOrder) => {
     return {
 
         //----------------------------------------------------
-        // Branch
+        // Branch — read from Shopify cart attributes if set,
+        // otherwise fall back to RISTA_BRANCH_CODE env var
         //----------------------------------------------------
 
-        branchCode: process.env.RISTA_BRANCH_CODE,
+        branchCode: (() => {
+            const attrs = shopifyOrder.note_attributes || [];
+            const branchAttr = attrs.find(a => a.name === 'rista_branch');
+            return branchAttr ? branchAttr.value : (process.env.RISTA_BRANCH_CODE || 'HO');
+        })(),
 
         status: "Open",
 
@@ -148,7 +153,11 @@ exports.mapShopifyOrderToRista = (shopifyOrder) => {
 
         // Use "Takeaway" as the default channel for Shopify online orders.
         // Change to "Delivery" if you want delivery orders routed differently.
-        channel: process.env.SHOPIFY_RISTA_CHANNEL || "Takeaway",
+        channel: (() => {
+            const attrs = shopifyOrder.note_attributes || [];
+            const channelAttr = attrs.find(a => a.name === 'rista_channel');
+            return channelAttr ? channelAttr.value : (process.env.SHOPIFY_RISTA_CHANNEL || 'Takeaway');
+        })(),
 
         //----------------------------------------------------
         // Products
