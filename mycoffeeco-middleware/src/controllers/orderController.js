@@ -6,6 +6,7 @@ exports.createOrder = async (req, res) => {
         console.log("createOrder controller hit");
         console.log("Order ID:", req.body?.id);
         console.log("Line items count:", req.body?.line_items?.length);
+        console.log("Note attributes:", JSON.stringify(req.body?.note_attributes));
 
         const result = await orderService.createOrder(req.body);
 
