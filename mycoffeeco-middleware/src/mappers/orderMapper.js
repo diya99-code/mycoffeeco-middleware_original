@@ -365,10 +365,10 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
 
             {
 
-                mode:
-                    shopifyOrder.gateway ||
-
-                    "Online",
+                // Always use "Online" as the payment mode for Shopify orders.
+                // Gateway-specific names (e.g. "razorpay") may not be configured
+                // in Rista POS and can block order acceptance.
+                mode: "Online",
 
                 amount:
                     Number(shopifyOrder.total_price),
