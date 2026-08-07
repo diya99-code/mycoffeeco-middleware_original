@@ -12,12 +12,15 @@ const shopifyRoutes     = require("./routes/shopify");
 const authRoutes        = require("./routes/auth");
 const directOrderRoutes = require("./routes/directOrder");
 
-// Apply express.json() globally EXCEPT for /orders/create
-// which needs the raw body buffer for Shopify HMAC verification
+// Apply express.json() globally EXCEPT for routes that need raw body for HMAC verification
 app.use((req, res, next) => {
-    if (req.path === "/orders/create" && req.method === "POST") {
-        return next(); // skip — express.raw() is applied per-route
-    }
+    const rawRoutes = [
+        { method: "POST", path: "/orders/create" },
+        { method: "POST", path: "/customers/webhook/create" },
+        { method: "POST", path: "/customers/webhook/update" }
+    ];
+    const isRaw = rawRoutes.some(r => r.method === req.method && req.path === r.path);
+    if (isRaw) return next(); // skip — express.raw() is applied per-route
     express.json()(req, res, next);
 });
 

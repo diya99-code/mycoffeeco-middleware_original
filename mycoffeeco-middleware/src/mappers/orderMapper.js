@@ -5,7 +5,13 @@
  * into a Rista Sale payload.
  */
 
-exports.mapShopifyOrderToRista = (shopifyOrder) => {
+/**
+ * @param {object} shopifyOrder  - The raw Shopify order webhook payload
+ * @param {string} ristaCustomerId - Rista customer ID resolved by orderService
+ *                                   (Shopify webhooks don't include metafields,
+ *                                    so we look it up separately before mapping)
+ */
+exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
 
     // ==========================================
     // Validation
@@ -134,7 +140,7 @@ exports.mapShopifyOrderToRista = (shopifyOrder) => {
         customer: {
 
             id:
-                customer.metafields?.ristaCustomerId || "",
+                ristaCustomerId,
 
             name:
                 `${customer.first_name || ""} ${customer.last_name || ""}`.trim(),
