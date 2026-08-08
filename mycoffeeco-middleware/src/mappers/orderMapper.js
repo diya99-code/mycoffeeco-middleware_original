@@ -365,10 +365,15 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
 
             {
 
-                // Always use "Online" as the payment mode for Shopify orders.
-                // Gateway-specific names (e.g. "razorpay") may not be configured
-                // in Rista POS and can block order acceptance.
-                mode: "Online",
+                // Map Shopify gateway names to Rista-compatible payment modes.
+                // Shopify gateway names (razorpay, stripe, etc.) are not recognized
+                // by Rista POS — map them to the closest Rista payment mode.
+                mode: (() => {
+                    const gw = (shopifyOrder.gateway || "").toLowerCase();
+                    if (gw === "cash_on_delivery" || gw === "cod") return "Cash";
+                    if (gw === "manual")                             return "Cash";
+                    return "Online"; // razorpay, stripe, paytm, etc.
+                })(),
 
                 amount:
                     Number(shopifyOrder.total_price),
