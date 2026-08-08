@@ -11,7 +11,14 @@ const {
  */
 async function resolveRistaCustomerId(shopifyOrder) {
     try {
-        const rawPhone = shopifyOrder.customer?.phone || "";
+        // customer.phone is null for New Customer Accounts (email login).
+        // Fall back to shipping_address.phone which is filled at checkout.
+        const rawPhone =
+            shopifyOrder.customer?.phone ||
+            shopifyOrder.shipping_address?.phone ||
+            shopifyOrder.billing_address?.phone ||
+            "";
+
         if (!rawPhone) return "";
 
         // Rista expects 10-digit local number — strip country code and + prefix

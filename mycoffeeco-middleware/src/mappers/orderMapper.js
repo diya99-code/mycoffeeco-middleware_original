@@ -99,8 +99,12 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
             email:
                 customer.email || "",
 
+            // customer.phone is null for email-only logins — use checkout phone
             phoneNumber:
-                customer.phone || "",
+                customer.phone ||
+                shopifyOrder.shipping_address?.phone ||
+                shopifyOrder.billing_address?.phone ||
+                "",
 
             deliveryDate:
                 shopifyOrder.processed_at ||
@@ -148,8 +152,13 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
             email:
                 customer.email || "",
 
+            // customer.phone is null for email-only (New Customer Accounts) logins.
+            // Fall back to shipping/billing address phone filled at checkout.
             phoneNumber:
-                customer.phone || ""
+                customer.phone ||
+                shopifyOrder.shipping_address?.phone ||
+                shopifyOrder.billing_address?.phone ||
+                ""
 
         },
 
