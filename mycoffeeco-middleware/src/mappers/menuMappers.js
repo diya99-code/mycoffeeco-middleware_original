@@ -49,8 +49,8 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         // Skip items not available on this channel
         if (!priceEntry) continue;
 
-        const category = categoryMap[item.categoryId];
-        if (!category) continue;
+        const basePrice = Number(priceEntry.price) || 0;
+        const priceWithTax = Math.round(basePrice * 1.05);
 
         category.items.push({
             itemId:      item.itemId,
@@ -58,8 +58,9 @@ exports.buildMenu = (catalog, soldOut, channel) => {
             type:        item.type,          // "Single" or "Variant"
             skuCode:     item.skuCode,
             name:        item.itemName,
+            image:       item.imageURL || null,
             variants:    item.variantValues || [],
-            price:       priceEntry.price,
+            price:       priceWithTax,
             priceBook:   priceEntry.priceBook,
             available:   !soldOutSkus.has(item.skuCode),
             itemNature:  item.itemNature || "Goods",
