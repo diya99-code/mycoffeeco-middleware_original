@@ -52,14 +52,18 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         const basePrice = Number(priceEntry.price) || 0;
         const priceWithTax = Math.round(basePrice * 1.05);
 
-        category.items.push({
+        // Look up the category bucket — skip item if category not found
+        const cat = categoryMap[item.categoryId];
+        if (!cat) continue;
+
+        cat.items.push({
             itemId:      item.itemId,
             groupItemId: item.groupItemId || null,
             type:        item.type,          // "Single" or "Variant"
             skuCode:     item.skuCode,
             name:        item.itemName,
             image:       item.imageURL || null,
-            variants:    item.variantValues || [],
+            variants:    item.variantAttributes || item.variantValues || [],
             price:       priceWithTax,
             priceBook:   priceEntry.priceBook,
             available:   !soldOutSkus.has(item.skuCode),
