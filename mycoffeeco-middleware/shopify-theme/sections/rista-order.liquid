@@ -865,6 +865,83 @@
     color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
     margin-top: -26px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); flex-shrink: 0; text-decoration: none;
   }
+
+  /* ── SIZE BOTTOM SHEET ── */
+  #size-sheet-overlay {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.45);
+    align-items: flex-end; justify-content: center;
+  }
+  #size-sheet-overlay.open { display: flex; }
+  .size-sheet {
+    background: #fff; border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 480px;
+    padding: 12px 20px 40px;
+    position: relative;
+    animation: sheetUp 0.28s cubic-bezier(.22,.68,0,1.2);
+  }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .size-sheet-handle {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: #ddd; margin: 0 auto 16px;
+  }
+  .size-sheet-close {
+    position: absolute; top: 14px; right: 16px;
+    background: #f5f5f7; border: none; border-radius: 50%;
+    width: 30px; height: 30px; font-size: 0.85rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .size-sheet-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+  }
+  .size-sheet-img-wrap { width: 64px; height: 64px; border-radius: 12px; overflow: hidden; flex-shrink: 0; background: #f5f5f7; }
+  .size-sheet-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .size-sheet-img-fallback {
+    width: 64px; height: 64px; border-radius: 12px; background: #e8e7ff;
+    color: var(--rista-blue); font-size: 1.6rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .size-sheet-name { font-size: 1.05rem; font-weight: 800; }
+  .size-sheet-label {
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: #888; margin-bottom: 12px;
+  }
+  .size-pill-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0; border-bottom: 1px solid #f0f0f0;
+  }
+  .size-pill-row:last-child { border-bottom: none; }
+  .size-pill-row.unavail { opacity: 0.45; }
+  .size-pill-left { display: flex; flex-direction: column; gap: 2px; }
+  .size-pill-label { font-size: 0.95rem; font-weight: 700; }
+  .size-pill-price { font-size: 0.85rem; color: #555; }
+  .size-pill-action { display: flex; align-items: center; }
+  .size-add-btn {
+    background: var(--rista-blue); color: #fff;
+    border: none; border-radius: 20px;
+    padding: 8px 18px; font-weight: 700; font-size: 0.88rem; cursor: pointer;
+  }
+  .size-stepper {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--rista-blue); border-radius: 20px;
+    padding: 6px 12px; color: #fff; font-weight: 700;
+  }
+  .size-stepper button {
+    background: none; border: none; color: #fff;
+    font-size: 1.1rem; font-weight: 700; cursor: pointer; padding: 0 2px;
+  }
+  .size-sold-out { font-size: 0.8rem; color: #aaa; }
+  .rista-card-qty-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--rista-blue); color: #fff;
+    border-radius: 50%; width: 20px; height: 20px;
+    font-size: 0.72rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+  }
+  .rista-card { position: relative; }
+  .rista-card-qty-inline { font-weight: 800; }
+
 </style>
 
 <script>
@@ -1159,6 +1236,120 @@
   }
   function escapeAttr(str) { return (str || '').replace(/'/g, "\\'"); }
 
+  // ── SIZE BOTTOM SHEET ──
+  // Injected once into the DOM, reused for every Group item tap
+  (function() {
+    const sheet = document.createElement('div');
+    sheet.id = 'size-sheet-overlay';
+    sheet.innerHTML = `
+      <div class="size-sheet" id="size-sheet">
+        <div class="size-sheet-handle"></div>
+        <div class="size-sheet-header">
+          <div class="size-sheet-img-wrap" id="size-sheet-img"></div>
+          <div class="size-sheet-info">
+            <div class="size-sheet-name" id="size-sheet-name"></div>
+          </div>
+        </div>
+        <div class="size-sheet-label">Choose Size</div>
+        <div class="size-pills" id="size-pills"></div>
+        <button class="size-sheet-close" id="size-sheet-close" aria-label="Close">✕</button>
+      </div>
+    `;
+    document.body.appendChild(sheet);
+    document.getElementById('size-sheet-close').addEventListener('click', closeSizeSheet);
+    sheet.addEventListener('click', function(e) { if (e.target === sheet) closeSizeSheet(); });
+  })();
+
+  function openSizeSheet(item) {
+    const overlay = document.getElementById('size-sheet-overlay');
+    document.getElementById('size-sheet-name').textContent = item.name;
+
+    // Image
+    const imgWrap = document.getElementById('size-sheet-img');
+    const src = getItemImage(item);
+    imgWrap.innerHTML = src
+      ? `<img src="${src}" alt="${escapeAttr(item.name)}">`
+      : `<div class="size-sheet-img-fallback">${(item.name||'?').charAt(0).toUpperCase()}</div>`;
+
+    // Size pills
+    const pillsEl = document.getElementById('size-pills');
+    pillsEl.innerHTML = item.variants.map(v => {
+      const inCart = cart[v.skuCode];
+      const qty    = inCart ? inCart.qty : 0;
+      const unavail = !v.available;
+      return `
+        <div class="size-pill-row${unavail ? ' unavail' : ''}" id="pill-row-${v.skuCode}">
+          <div class="size-pill-left">
+            <span class="size-pill-label">${v.label}</span>
+            <span class="size-pill-price">₹${v.price}</span>
+          </div>
+          <div class="size-pill-action">
+            ${unavail ? '<span class="size-sold-out">Sold out</span>' :
+              qty === 0
+                ? `<button class="size-add-btn" onclick="sheetAdd('${v.skuCode}','${escapeAttr(item.name)}','${escapeAttr(v.label)}',${v.price},${v.tax||0},'${item.skuCode}')">+ Add</button>`
+                : `<div class="size-stepper">
+                     <button onclick="sheetQty('${v.skuCode}',-1,'${item.skuCode}')">−</button>
+                     <span>${qty}</span>
+                     <button onclick="sheetQty('${v.skuCode}',1,'${item.skuCode}')">+</button>
+                   </div>`
+            }
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    // Store current item for re-render
+    overlay.dataset.itemJson = JSON.stringify({
+      name: item.name, image: item.image, skuCode: item.skuCode, variants: item.variants
+    });
+  }
+
+  function closeSizeSheet() {
+    const overlay = document.getElementById('size-sheet-overlay');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  window.sheetAdd = function(skuCode, name, label, price, tax, parentSkuCode) {
+    if (!cart[skuCode]) cart[skuCode] = { skuCode, name, variant: label, price, tax, qty: 0 };
+    cart[skuCode].qty++;
+    refreshItemUI(parentSkuCode); // update card badge on the parent card
+    updateCartUI();
+    refreshSizeSheetPill(skuCode, parentSkuCode);
+  };
+
+  window.sheetQty = function(skuCode, delta, parentSkuCode) {
+    if (!cart[skuCode]) return;
+    cart[skuCode].qty += delta;
+    if (cart[skuCode].qty <= 0) delete cart[skuCode];
+    refreshItemUI(parentSkuCode);
+    updateCartUI();
+    refreshSizeSheetPill(skuCode, parentSkuCode);
+  };
+
+  function refreshSizeSheetPill(skuCode, parentSkuCode) {
+    const overlay = document.getElementById('size-sheet-overlay');
+    if (!overlay.classList.contains('open')) return;
+    try {
+      const item = JSON.parse(overlay.dataset.itemJson || '{}');
+      const v = (item.variants || []).find(x => x.skuCode === skuCode);
+      if (!v) return;
+      const row = document.getElementById(`pill-row-${skuCode}`);
+      if (!row) return;
+      const qty = cart[skuCode] ? cart[skuCode].qty : 0;
+      row.querySelector('.size-pill-action').innerHTML = qty === 0
+        ? `<button class="size-add-btn" onclick="sheetAdd('${skuCode}','${escapeAttr(item.name)}','${escapeAttr(v.label)}',${v.price},${v.tax||0},'${parentSkuCode}')">+ Add</button>`
+        : `<div class="size-stepper">
+             <button onclick="sheetQty('${skuCode}',-1,'${parentSkuCode}')">−</button>
+             <span>${qty}</span>
+             <button onclick="sheetQty('${skuCode}',1,'${parentSkuCode}')">+</button>
+           </div>`;
+    } catch(e) {}
+  }
+
   // Rows are built via innerHTML after the menu fetch resolves. On some
   // mobile browsers, injecting a horizontally-scrollable flex row into an
   // already-rendered page leaves it initialized at a non-zero scrollLeft
@@ -1174,20 +1365,34 @@
 
   // ── ITEM CARD ──
   function cardHTML(item) {
-    const inCart  = cart[item.skuCode];
     const soldOut = !item.available;
     const isNew   = item.isNew || (item.tags && item.tags.indexOf('new') !== -1);
-    const variantText = item.variants && item.variants.length ? item.variants.map(v => v.value).join(' / ') : '';
+    const isGroup = item.type === 'Group' && item.variants && item.variants.length > 0;
+
+    // For group items, show total qty across all sizes in the badge
+    const totalQty = isGroup
+      ? item.variants.reduce((sum, v) => sum + (cart[v.skuCode] ? cart[v.skuCode].qty : 0), 0)
+      : (cart[item.skuCode] ? cart[item.skuCode].qty : 0);
+
+    const priceLabel = isGroup ? `from ₹${item.price}` : `₹${item.price}`;
+
     return `
-      <div class="rista-card${soldOut ? ' sold-out' : ''}" id="card-${item.skuCode}">
+      <div class="rista-card${soldOut ? ' sold-out' : ''}" id="card-${item.skuCode}"
+           ${isGroup && !soldOut ? `onclick="openSizeSheet(${JSON.stringify(item).replace(/"/g, '&quot;')})"` : ''}>
         ${isNew ? '<span class="rista-card-badge">New</span>' : ''}
+        ${totalQty > 0 ? `<span class="rista-card-qty-badge">${totalQty}</span>` : ''}
         ${cardImageHTML(item)}
         <div class="rista-card-body">
           <div class="rista-card-name">${item.name}</div>
           <div class="rista-card-bottom-row">
-            <span class="rista-card-price">₹${item.price}</span>
-
-            ${soldOut ? '' : cardActionHTML(item, inCart, variantText)}
+            <span class="rista-card-price">${priceLabel}</span>
+            ${soldOut ? '<span class="rista-sold-label">Sold out</span>' :
+              isGroup
+                ? `<button class="rista-add-pill" onclick="event.stopPropagation();openSizeSheet(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                     ${totalQty > 0 ? `<span class="rista-card-qty-inline">${totalQty}</span> sizes` : '+ Add'}
+                   </button>`
+                : cardActionHTML(item, cart[item.skuCode], '')
+            }
           </div>
         </div>
       </div>
