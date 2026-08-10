@@ -49,8 +49,11 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         // Skip items not available on this channel
         if (!priceEntry) continue;
 
-        const basePrice = Number(priceEntry.price) || 0;
-        const priceWithTax = Math.round(basePrice * 1.05);
+        const basePrice  = Number(priceEntry.price) || 0;
+        const displayPrice = Math.round(basePrice);
+        // Tax is calculated on top (5% GST, excluded from base price)
+        // Shown separately in cart bill summary, not on menu item cards
+        const taxAmount  = Math.round(basePrice * 0.05);
 
         // Look up the category bucket — skip item if category not found
         const cat = categoryMap[item.categoryId];
@@ -64,7 +67,8 @@ exports.buildMenu = (catalog, soldOut, channel) => {
             name:        item.itemName,
             image:       item.imageURL || null,
             variants:    item.variantAttributes || item.variantValues || [],
-            price:       priceWithTax,
+            price:       displayPrice,   // base price shown on menu cards
+            tax:         taxAmount,       // 5% GST shown in cart bill summary
             priceBook:   priceEntry.priceBook,
             available:   !soldOutSkus.has(item.skuCode),
             itemNature:  item.itemNature || "Goods",
