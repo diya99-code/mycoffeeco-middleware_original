@@ -1237,8 +1237,9 @@
   function escapeAttr(str) { return (str || '').replace(/'/g, "\\'"); }
 
   // ── SIZE BOTTOM SHEET ──
-  // Injected once into the DOM, reused for every Group item tap
-  (function() {
+  // Created once on DOMContentLoaded, reused for every Group item tap
+  function initSizeSheet() {
+    if (document.getElementById('size-sheet-overlay')) return; // already exists
     const sheet = document.createElement('div');
     sheet.id = 'size-sheet-overlay';
     sheet.innerHTML = `
@@ -1258,12 +1259,19 @@
     document.body.appendChild(sheet);
     document.getElementById('size-sheet-close').addEventListener('click', closeSizeSheet);
     sheet.addEventListener('click', function(e) { if (e.target === sheet) closeSizeSheet(); });
-  })();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSizeSheet);
+  } else {
+    initSizeSheet();
+  }
 
   function openSizeSheet(skuCode) {
+    initSizeSheet(); // ensure sheet exists
     const item = window.__menuItems[skuCode];
-    if (!item) return;
+    if (!item || !item.variants || !item.variants.length) return;
     const overlay = document.getElementById('size-sheet-overlay');
+    if (!overlay) return;
     document.getElementById('size-sheet-name').textContent = item.name;
 
     // Image
