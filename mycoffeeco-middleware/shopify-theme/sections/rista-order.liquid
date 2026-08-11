@@ -642,6 +642,8 @@
   .rista-add-pill {
     border: 1.5px solid var(--rista-blue); color: var(--rista-blue); background: #fff;
     font-size: 0.72rem; font-weight: 800; padding: 5px 12px; border-radius: 16px; cursor: pointer; white-space: nowrap;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    position: relative; z-index: 3; pointer-events: auto;
   }
   .rista-qty-pill { display: flex; align-items: center; gap: 6px; background: var(--rista-blue); border-radius: 16px; padding: 3px 6px; }
   .rista-qty-pill button { width: 18px; height: 18px; border-radius: 50%; border: none; background: #fff; color: var(--rista-blue); font-weight: 800; font-size: 0.8rem; cursor: pointer; line-height: 1; }
@@ -1388,8 +1390,7 @@
     const priceLabel = isGroup ? `from ₹${item.price}` : `₹${item.price}`;
 
     return `
-      <div class="rista-card${soldOut ? ' sold-out' : ''}" id="card-${item.skuCode}"
-           ${isGroup && !soldOut ? `onclick="openSizeSheet('${item.skuCode}')"` : ''}>
+      <div class="rista-card${soldOut ? ' sold-out' : ''}" id="card-${item.skuCode}">
         ${isNew ? '<span class="rista-card-badge">New</span>' : ''}
         ${totalQty > 0 ? `<span class="rista-card-qty-badge">${totalQty}</span>` : ''}
         ${cardImageHTML(item)}
@@ -1399,7 +1400,7 @@
             <span class="rista-card-price">${priceLabel}</span>
             ${soldOut ? '<span class="rista-sold-label">Sold out</span>' :
               isGroup
-                ? `<button class="rista-add-pill" onclick="event.stopPropagation();openSizeSheet('${item.skuCode}')">
+                ? `<button class="rista-add-pill" type="button" data-open-sheet="${item.skuCode}">
                      ${totalQty > 0 ? `<span class="rista-card-qty-inline">${totalQty}</span> sizes` : '+ Add'}
                    </button>`
                 : cardActionHTML(item, cart[item.skuCode], '')
@@ -1721,7 +1722,17 @@
     }
   });
 
-  // ── INIT ──
+  // ── EVENT DELEGATION for size sheet + simple add buttons ──
+  // Using delegation on the app root so it works after any innerHTML re-render
+  document.getElementById('rista-app').addEventListener('click', function(e) {
+    // Size sheet open button
+    const sheetBtn = e.target.closest('[data-open-sheet]');
+    if (sheetBtn) {
+      e.stopPropagation();
+      openSizeSheet(sheetBtn.dataset.openSheet);
+      return;
+    }
+  });
   if (branchSelect) branchSelect.addEventListener('change', function() { updateChannels(); loadMenu(); });
   if (channelSelect) channelSelect.addEventListener('change', function() { updateLabels(); loadMenu(); });
   const hashView = (window.location.hash || '').replace('#', '');
