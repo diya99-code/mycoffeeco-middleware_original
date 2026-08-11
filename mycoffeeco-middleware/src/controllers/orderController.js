@@ -77,12 +77,21 @@ exports.updateStatus = async (req, res) => {
  * Rista calls this URL (set as callbackURL in the sale payload) when
  * an order status changes (e.g. Accepted, Prepared, Dispatched, Completed).
  *
- * Rista sends: { invoiceNumber, status, ... }
- * We log it and respond 200 — extend this to notify Shopify if needed.
+ * Required header: x-rista-secret: <RISTA_CALLBACK_SECRET from .env>
  */
 exports.ristaCallback = async (req, res) => {
 
     try {
+
+        // Verify the shared secret Rista sends in the header
+        const secret = process.env.RISTA_CALLBACK_SECRET;
+        if (secret) {
+            const incoming = req.headers["x-rista-secret"] || req.headers["x-callback-secret"] || "";
+            if (incoming !== secret) {
+                console.warn("[rista-callback] Rejected — invalid secret");
+                return res.sendStatus(401);
+            }
+        }
 
         const body = req.body;
 
