@@ -21,9 +21,21 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         (soldOut?.data || []).map(item => item.skuCode)
     );
 
+    // Categories to hide from the online ordering menu
+    // Add category names here (case-insensitive) to exclude them
+    const HIDDEN_CATEGORIES = [
+        "coffee beans",
+        "instant coffee",
+        "drip bags"
+    ];
+
     // Build a category map for fast lookup
     const categoryMap = {};
     for (const cat of (catalog.categories || [])) {
+        const isHidden = HIDDEN_CATEGORIES.some(
+            h => cat.name.toLowerCase().includes(h.toLowerCase())
+        );
+        if (isHidden) continue;
         categoryMap[cat.categoryId] = {
             categoryId: cat.categoryId,
             name: cat.name,

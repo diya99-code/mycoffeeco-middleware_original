@@ -1260,7 +1260,9 @@
     sheet.addEventListener('click', function(e) { if (e.target === sheet) closeSizeSheet(); });
   })();
 
-  function openSizeSheet(item) {
+  function openSizeSheet(skuCode) {
+    const item = window.__menuItems[skuCode];
+    if (!item) return;
     const overlay = document.getElementById('size-sheet-overlay');
     document.getElementById('size-sheet-name').textContent = item.name;
 
@@ -1273,38 +1275,28 @@
 
     // Size pills
     const pillsEl = document.getElementById('size-pills');
-    pillsEl.innerHTML = item.variants.map(v => {
-      const inCart = cart[v.skuCode];
-      const qty    = inCart ? inCart.qty : 0;
+    pillsEl.innerHTML = '';
+    item.variants.forEach(v => {
+      const inCart  = cart[v.skuCode];
+      const qty     = inCart ? inCart.qty : 0;
       const unavail = !v.available;
-      return `
-        <div class="size-pill-row${unavail ? ' unavail' : ''}" id="pill-row-${v.skuCode}">
-          <div class="size-pill-left">
-            <span class="size-pill-label">${v.label}</span>
-            <span class="size-pill-price">₹${v.price}</span>
-          </div>
-          <div class="size-pill-action">
-            ${unavail ? '<span class="size-sold-out">Sold out</span>' :
-              qty === 0
-                ? `<button class="size-add-btn" onclick="sheetAdd('${v.skuCode}','${escapeAttr(item.name)}','${escapeAttr(v.label)}',${v.price},${v.tax||0},'${item.skuCode}')">+ Add</button>`
-                : `<div class="size-stepper">
-                     <button onclick="sheetQty('${v.skuCode}',-1,'${item.skuCode}')">−</button>
-                     <span>${qty}</span>
-                     <button onclick="sheetQty('${v.skuCode}',1,'${item.skuCode}')">+</button>
-                   </div>`
-            }
-          </div>
+
+      const row = document.createElement('div');
+      row.className = 'size-pill-row' + (unavail ? ' unavail' : '');
+      row.id = `pill-row-${v.skuCode}`;
+      row.innerHTML = `
+        <div class="size-pill-left">
+          <span class="size-pill-label">${v.label}</span>
+          <span class="size-pill-price">₹${v.price}</span>
         </div>
+        <div class="size-pill-action" id="pill-action-${v.skuCode}"></div>
       `;
-    }).join('');
+      pillsEl.appendChild(row);
+      renderPillAction(v.skuCode, item.skuCode, item.name, v);
+    });
 
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
-
-    // Store current item for re-render
-    overlay.dataset.itemJson = JSON.stringify({
-      name: item.name, image: item.image, skuCode: item.skuCode, variants: item.variants
-    });
   }
 
   function closeSizeSheet() {
@@ -1313,41 +1305,47 @@
     document.body.style.overflow = '';
   }
 
-  window.sheetAdd = function(skuCode, name, label, price, tax, parentSkuCode) {
-    if (!cart[skuCode]) cart[skuCode] = { skuCode, name, variant: label, price, tax, qty: 0 };
-    cart[skuCode].qty++;
-    refreshItemUI(parentSkuCode); // update card badge on the parent card
-    updateCartUI();
-    refreshSizeSheetPill(skuCode, parentSkuCode);
-  };
-
-  window.sheetQty = function(skuCode, delta, parentSkuCode) {
-    if (!cart[skuCode]) return;
-    cart[skuCode].qty += delta;
-    if (cart[skuCode].qty <= 0) delete cart[skuCode];
-    refreshItemUI(parentSkuCode);
-    updateCartUI();
-    refreshSizeSheetPill(skuCode, parentSkuCode);
-  };
-
-  function refreshSizeSheetPill(skuCode, parentSkuCode) {
-    const overlay = document.getElementById('size-sheet-overlay');
-    if (!overlay.classList.contains('open')) return;
-    try {
-      const item = JSON.parse(overlay.dataset.itemJson || '{}');
-      const v = (item.variants || []).find(x => x.skuCode === skuCode);
-      if (!v) return;
-      const row = document.getElementById(`pill-row-${skuCode}`);
-      if (!row) return;
-      const qty = cart[skuCode] ? cart[skuCode].qty : 0;
-      row.querySelector('.size-pill-action').innerHTML = qty === 0
-        ? `<button class="size-add-btn" onclick="sheetAdd('${skuCode}','${escapeAttr(item.name)}','${escapeAttr(v.label)}',${v.price},${v.tax||0},'${parentSkuCode}')">+ Add</button>`
-        : `<div class="size-stepper">
-             <button onclick="sheetQty('${skuCode}',-1,'${parentSkuCode}')">−</button>
-             <span>${qty}</span>
-             <button onclick="sheetQty('${skuCode}',1,'${parentSkuCode}')">+</button>
-           </div>`;
-    } catch(e) {}
+  // Renders the +Add / stepper into a pill action cell using real event listeners
+  // (avoids onclick string escaping issues with item names containing quotes)
+  function renderPillAction(varSkuCode, parentSkuCode, itemName, v) {
+    const cell = document.getElementById(`pill-action-${varSkuCode}`);
+    if (!cell) return;
+    if (!v.available) { cell.innerHTML = '<span class="size-sold-out">Sold out</span>'; return; }
+    const qty = cart[varSkuCode] ? cart[varSkuCode].qty : 0;
+    cell.innerHTML = '';
+    if (qty === 0) {
+      const btn = document.createElement('button');
+      btn.className = 'size-add-btn';
+      btn.textContent = '+ Add';
+      btn.addEventListener('click', function() {
+        if (!cart[varSkuCode]) cart[varSkuCode] = { skuCode: varSkuCode, name: itemName, variant: v.label, price: v.price, tax: v.tax || 0, qty: 0 };
+        cart[varSkuCode].qty++;
+        refreshItemUI(parentSkuCode);
+        updateCartUI();
+        renderPillAction(varSkuCode, parentSkuCode, itemName, v);
+      });
+      cell.appendChild(btn);
+    } else {
+      const stepper = document.createElement('div');
+      stepper.className = 'size-stepper';
+      stepper.innerHTML = `<button>−</button><span>${qty}</span><button>+</button>`;
+      stepper.querySelector('button:first-child').addEventListener('click', function() {
+        if (!cart[varSkuCode]) return;
+        cart[varSkuCode].qty--;
+        if (cart[varSkuCode].qty <= 0) delete cart[varSkuCode];
+        refreshItemUI(parentSkuCode);
+        updateCartUI();
+        renderPillAction(varSkuCode, parentSkuCode, itemName, v);
+      });
+      stepper.querySelector('button:last-child').addEventListener('click', function() {
+        if (!cart[varSkuCode]) cart[varSkuCode] = { skuCode: varSkuCode, name: itemName, variant: v.label, price: v.price, tax: v.tax || 0, qty: 0 };
+        cart[varSkuCode].qty++;
+        refreshItemUI(parentSkuCode);
+        updateCartUI();
+        renderPillAction(varSkuCode, parentSkuCode, itemName, v);
+      });
+      cell.appendChild(stepper);
+    }
   }
 
   // Rows are built via innerHTML after the menu fetch resolves. On some
@@ -1364,10 +1362,17 @@
   }
 
   // ── ITEM CARD ──
+  // Items are stored in window.__menuItems by skuCode so openSizeSheet
+  // can look them up safely without JSON in onclick attributes.
+  window.__menuItems = window.__menuItems || {};
+
   function cardHTML(item) {
     const soldOut = !item.available;
     const isNew   = item.isNew || (item.tags && item.tags.indexOf('new') !== -1);
     const isGroup = item.type === 'Group' && item.variants && item.variants.length > 0;
+
+    // Store item for safe lookup by openSizeSheet
+    window.__menuItems[item.skuCode] = item;
 
     // For group items, show total qty across all sizes in the badge
     const totalQty = isGroup
@@ -1378,7 +1383,7 @@
 
     return `
       <div class="rista-card${soldOut ? ' sold-out' : ''}" id="card-${item.skuCode}"
-           ${isGroup && !soldOut ? `onclick="openSizeSheet(${JSON.stringify(item).replace(/"/g, '&quot;')})"` : ''}>
+           ${isGroup && !soldOut ? `onclick="openSizeSheet('${item.skuCode}')"` : ''}>
         ${isNew ? '<span class="rista-card-badge">New</span>' : ''}
         ${totalQty > 0 ? `<span class="rista-card-qty-badge">${totalQty}</span>` : ''}
         ${cardImageHTML(item)}
@@ -1388,7 +1393,7 @@
             <span class="rista-card-price">${priceLabel}</span>
             ${soldOut ? '<span class="rista-sold-label">Sold out</span>' :
               isGroup
-                ? `<button class="rista-add-pill" onclick="event.stopPropagation();openSizeSheet(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                ? `<button class="rista-add-pill" onclick="event.stopPropagation();openSizeSheet('${item.skuCode}')">
                      ${totalQty > 0 ? `<span class="rista-card-qty-inline">${totalQty}</span> sizes` : '+ Add'}
                    </button>`
                 : cardActionHTML(item, cart[item.skuCode], '')

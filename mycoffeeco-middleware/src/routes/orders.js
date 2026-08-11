@@ -32,4 +32,8 @@ router.get("/:saleId", orderController.getOrder);
 
 router.post("/status", orderController.updateStatus);
 
+// Rista POS → middleware callback
+// Rista calls this when an order status changes (Accepted, Prepared, Dispatched, etc.)
+router.post("/callback", orderController.ristaCallback);
+
 module.exports = router;
