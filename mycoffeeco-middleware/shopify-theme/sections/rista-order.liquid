@@ -262,7 +262,7 @@
           <button class="rista-pickup-change" id="pickup-change-btn" type="button">Change ›</button>
           <select id="branch-select-cart" class="rista-hidden-select" aria-label="Choose location"></select>
         </span>
-        <select id="channel-select" class="rista-hidden-select" aria-label="Choose order type" style="display:none">
+        <select id="channel-select-cart" class="rista-hidden-select" aria-label="Choose order type" style="display:none">
           <option value="Takeaway">Takeaway</option>
           <option value="Dine In">Dine In</option>
           <option value="Delivery">Delivery</option>
@@ -1267,11 +1267,9 @@
   }
 
   function openSizeSheet(skuCode) {
-    initSizeSheet(); // ensure sheet exists
     const item = window.__menuItems[skuCode];
-    if (!item || !item.variants || !item.variants.length) return;
+    if (!item) return;
     const overlay = document.getElementById('size-sheet-overlay');
-    if (!overlay) return;
     document.getElementById('size-sheet-name').textContent = item.name;
 
     // Image
@@ -1703,27 +1701,17 @@
       }
 
      await fetch('/cart/update.js', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        attributes: {
-            'rista_branch': branchSelect.value,
-            'rista_channel': channelSelect.value
-        }
-    })
-});
-        // Save branch/channel so middleware routes to correct Rista branch
-        await fetch('/cart/update.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                attributes: {
-                    'rista_branch': branchSelect.value,
-                    'rista_channel': channelSelect.value
-                }
-            })
-        });
-        window.location.href = '/checkout';
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            attributes: {
+                'rista_branch': branchSelect.value,
+                'rista_channel': channelSelect.value
+            }
+        })
+      });
+
+      window.location.href = '/checkout';
 
     } catch (err) {
       console.error('Checkout error:', err);
