@@ -98,16 +98,20 @@ exports.buildMenu = (catalog, soldOut, channel) => {
             .map(child => {
                 // Extract size label from variantAttributes or child.itemName
                 let label = "";
-                if (child.variantAttributes && Array.isArray(child.variantAttributes)) {
-                    for (const attr of child.variantAttributes) {
+                if (child.variantAttributes) {
+                    const attrs = Array.isArray(child.variantAttributes)
+                        ? child.variantAttributes
+                        : Object.values(child.variantAttributes);
+                    for (const attr of attrs) {
+                        if (typeof attr === 'string') { label = attr; break; }
                         const val = attr.value || attr.attributeValue || attr.optionValue || attr.val;
-                        if (val && !/group|parent/i.test(val)) {
-                            label = val;
+                        if (val && !/group|parent|active|true|false/i.test(String(val))) {
+                            label = String(val);
                             break;
                         }
                     }
                 }
-                if (!label) {
+                if (!label || label.toLowerCase() === child.itemName.toLowerCase() || label.toLowerCase() === parent.itemName.toLowerCase()) {
                     const cleanName = child.itemName
                         .replace(new RegExp(parent.itemName, 'gi'), '')
                         .replace(/^[\s\-\(\)\:\,]+|[\s\-\(\)\:\,]+$/g, '')

@@ -921,11 +921,24 @@
   .size-pill-price { font-size: 0.85rem; color: #555; font-weight: 600; }
   .size-pill-action { display: flex; align-items: center; margin-left: 12px; }
   .size-add-btn {
-    background: var(--rista-blue); color: #fff !important;
-    border: none; border-radius: 20px;
-    padding: 8px 18px; font-weight: 700; font-size: 0.88rem; cursor: pointer;
-    box-shadow: 0 2px 6px rgba(10,6,255,0.2);
-    transition: transform 0.1s ease;
+    background-color: #0a06ff !important;
+    background: #0a06ff !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 8px 20px !important;
+    font-weight: 800 !important;
+    font-size: 0.88rem !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 8px rgba(10,6,255,0.3) !important;
+    transition: transform 0.1s ease, background-color 0.15s ease !important;
+  }
+  .size-add-btn:hover {
+    background-color: #0503a5 !important;
+    color: #ffffff !important;
   }
   .size-add-btn:active { transform: scale(0.95); }
   .size-stepper {
@@ -1505,9 +1518,14 @@
   // ── RE-RENDER ONE ITEM'S ACTION AREA EVERYWHERE IT APPEARS ──
   function refreshItemUI(skuCode) {
     if (!menuData || !skuCode) return;
-    const item = menuData.categories.flatMap(c => c.items).find(i => String(i.skuCode) === String(skuCode));
+    let item = menuData.categories.flatMap(c => c.items).find(i => String(i.skuCode) === String(skuCode));
+    if (!item && window.__variantParentMap[skuCode]) {
+      const parentSku = window.__variantParentMap[skuCode];
+      item = menuData.categories.flatMap(c => c.items).find(i => String(i.skuCode) === String(parentSku));
+    }
     if (!item) return;
-    document.querySelectorAll(`[id="card-${skuCode}"]`).forEach(cardEl => { cardEl.outerHTML = cardHTML(item); });
+    const targetSku = item.skuCode;
+    document.querySelectorAll(`[id="card-${targetSku}"]`).forEach(cardEl => { cardEl.outerHTML = cardHTML(item); });
   }
 
   // ── CART LOGIC ──
@@ -1525,7 +1543,11 @@
       cart[skuCode] = { skuCode, name: itemName, variant: itemVariant, price: itemPrice, tax: itemTax, qty: 0 };
     }
     cart[skuCode].qty++;
-    refreshItemUI(skuCode);
+
+    const parentSku = window.__variantParentMap[skuCode] || skuCode;
+    refreshItemUI(parentSku);
+    if (parentSku !== skuCode) refreshItemUI(skuCode);
+
     updateCartUI();
   };
   window.changeQty = function(skuCode, delta) {
