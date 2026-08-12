@@ -1317,10 +1317,11 @@
     if (!pillsEl || !item || !item.variants) return;
 
     pillsEl.innerHTML = item.variants.map((v, idx) => {
-      const varSku = v.skuCode || (item.skuCode + '-v-' + idx);
+      const varSku = String(v.skuCode || (item.skuCode + '-v-' + idx));
+      const parentSkuStr = String(item.skuCode || '');
       v.skuCode = varSku;
-      window.__variantParentMap[varSku] = item.skuCode;
-      window.__menuItems[varSku] = { skuCode: varSku, name: item.name, variant: v.label, price: v.price, tax: v.tax || 0 };
+      window.__variantParentMap[varSku] = parentSkuStr;
+      window.__menuItems[varSku] = { skuCode: varSku, name: item.name, variant: v.label, price: Number(v.price) || 0, tax: Number(v.tax) || 0 };
 
       const inCart  = cart[varSku];
       const qty     = inCart ? inCart.qty : 0;
@@ -1777,11 +1778,13 @@
     const varQtyBtn = e.target.closest('[data-variant-qty]');
     if (varQtyBtn) {
       e.stopPropagation();
-      const varSku = varQtyBtn.dataset.variantQty;
-      const parentSku = varQtyBtn.dataset.parentSku;
+      const varSku = String(varQtyBtn.dataset.variantQty || '');
+      const parentSku = String(varQtyBtn.dataset.parentSku || '');
       const delta = parseInt(varQtyBtn.dataset.delta || '1', 10);
       changeQty(varSku, delta);
-      const parentItem = window.__menuItems[parentSku];
+
+      const parentItem = window.__menuItems[parentSku] ||
+        (menuData && menuData.categories.flatMap(c => c.items).find(i => String(i.skuCode) === parentSku));
       if (parentItem) renderSizePills(parentItem);
       return;
     }
@@ -1790,14 +1793,15 @@
     const addVarBtn = e.target.closest('[data-add-variant]');
     if (addVarBtn) {
       e.stopPropagation();
-      const varSku = addVarBtn.dataset.addVariant;
-      const parentSku = addVarBtn.dataset.parentSku;
-      const varItem = window.__menuItems[varSku];
-      if (varItem) {
-        addItem(varSku, varItem.name, varItem.variant, varItem.price, varItem.tax);
-        const parentItem = window.__menuItems[parentSku];
-        if (parentItem) renderSizePills(parentItem);
-      }
+      const varSku = String(addVarBtn.dataset.addVariant || '');
+      const parentSku = String(addVarBtn.dataset.parentSku || '');
+      const varItem = window.__menuItems[varSku] || {};
+
+      addItem(varSku, varItem.name, varItem.variant, varItem.price, varItem.tax);
+
+      const parentItem = window.__menuItems[parentSku] ||
+        (menuData && menuData.categories.flatMap(c => c.items).find(i => String(i.skuCode) === parentSku));
+      if (parentItem) renderSizePills(parentItem);
       return;
     }
 
