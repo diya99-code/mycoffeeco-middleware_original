@@ -96,12 +96,25 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         // Build variant size options from children
         const variantOptions = children
             .map(child => {
-                // Extract size label from variantAttributes
-                // e.g. variantAttributes: [{ name: "Size", value: "Large" }]
-                const sizeAttr = (child.variantAttributes || []).find(
-                    a => /size/i.test(a.name)
-                );
-                const label = sizeAttr?.value || child.itemName;
+                // Extract size label from variantAttributes or child.itemName
+                let label = "";
+                if (child.variantAttributes && Array.isArray(child.variantAttributes)) {
+                    for (const attr of child.variantAttributes) {
+                        const val = attr.value || attr.attributeValue || attr.val || attr.name;
+                        if (val && !/group|parent/i.test(val)) {
+                            label = val;
+                            break;
+                        }
+                    }
+                }
+                if (!label || label.toLowerCase() === child.itemName.toLowerCase() || label.toLowerCase() === parent.itemName.toLowerCase()) {
+                    const cleanName = child.itemName
+                        .replace(new RegExp(parent.itemName, 'gi'), '')
+                        .replace(/^[\s\-\(\)\:\,]+|[\s\-\(\)\:\,]+$/g, '')
+                        .trim();
+                    label = cleanName || child.itemName;
+                }
+
                 const built = buildItem(child, label);
                 if (!built) return null;
                 return { ...built, label };

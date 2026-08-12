@@ -1281,27 +1281,8 @@
       ? `<img src="${src}" alt="${escapeAttr(item.name)}">`
       : `<div class="size-sheet-img-fallback">${(item.name||'?').charAt(0).toUpperCase()}</div>`;
 
-    // Size pills
-    const pillsEl = document.getElementById('size-pills');
-    pillsEl.innerHTML = '';
-    item.variants.forEach(v => {
-      const inCart  = cart[v.skuCode];
-      const qty     = inCart ? inCart.qty : 0;
-      const unavail = !v.available;
-
-      const row = document.createElement('div');
-      row.className = 'size-pill-row' + (unavail ? ' unavail' : '');
-      row.id = `pill-row-${v.skuCode}`;
-      row.innerHTML = `
-        <div class="size-pill-left">
-          <span class="size-pill-label">${v.label}</span>
-          <span class="size-pill-price">₹${v.price}</span>
-        </div>
-        <div class="size-pill-action" id="pill-action-${v.skuCode}"></div>
-      `;
-      pillsEl.appendChild(row);
-      renderPillAction(v.skuCode, item.skuCode, item.name, v);
-    });
+    // Render Size pills
+    renderSizePills(item);
 
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1313,47 +1294,50 @@
     document.body.style.overflow = '';
   }
 
-  // Renders the +Add / stepper into a pill action cell using real event listeners
-  // (avoids onclick string escaping issues with item names containing quotes)
-  function renderPillAction(varSkuCode, parentSkuCode, itemName, v) {
-    const cell = document.getElementById(`pill-action-${varSkuCode}`);
-    if (!cell) return;
-    if (!v.available) { cell.innerHTML = '<span class="size-sold-out">Sold out</span>'; return; }
-    const qty = cart[varSkuCode] ? cart[varSkuCode].qty : 0;
-    cell.innerHTML = '';
-    if (qty === 0) {
-      const btn = document.createElement('button');
-      btn.className = 'size-add-btn';
-      btn.textContent = '+ Add';
-      btn.addEventListener('click', function() {
-        if (!cart[varSkuCode]) cart[varSkuCode] = { skuCode: varSkuCode, name: itemName, variant: v.label, price: v.price, tax: v.tax || 0, qty: 0 };
-        cart[varSkuCode].qty++;
-        refreshItemUI(parentSkuCode);
-        updateCartUI();
-        renderPillAction(varSkuCode, parentSkuCode, itemName, v);
-      });
-      cell.appendChild(btn);
-    } else {
-      const stepper = document.createElement('div');
-      stepper.className = 'size-stepper';
-      stepper.innerHTML = `<button>−</button><span>${qty}</span><button>+</button>`;
-      stepper.querySelector('button:first-child').addEventListener('click', function() {
-        if (!cart[varSkuCode]) return;
-        cart[varSkuCode].qty--;
-        if (cart[varSkuCode].qty <= 0) delete cart[varSkuCode];
-        refreshItemUI(parentSkuCode);
-        updateCartUI();
-        renderPillAction(varSkuCode, parentSkuCode, itemName, v);
-      });
-      stepper.querySelector('button:last-child').addEventListener('click', function() {
-        if (!cart[varSkuCode]) cart[varSkuCode] = { skuCode: varSkuCode, name: itemName, variant: v.label, price: v.price, tax: v.tax || 0, qty: 0 };
-        cart[varSkuCode].qty++;
-        refreshItemUI(parentSkuCode);
-        updateCartUI();
-        renderPillAction(varSkuCode, parentSkuCode, itemName, v);
-      });
-      cell.appendChild(stepper);
-    }
+  function renderSizePills(item) {
+    const pillsEl = document.getElementById('size-pills');
+    if (!pillsEl || !item || !item.variants) return;
+
+    pillsEl.innerHTML = item.variants.map((v, idx) => {
+      const varSku = v.skuCode || (item.skuCode + '-v-' + idx);
+      v.skuCode = varSku;
+      window.__variantParentMap[varSku] = item.skuCode;
+      window.__menuItems[varSku] = { skuCode: varSku, name: item.name, variant: v.label, price: v.price, tax: v.tax || 0 };
+
+      const inCart  = cart[varSku];
+      const qty     = inCart ? inCart.qty : 0;
+      const unavail = !v.available;
+
+      let actionHTML = '';
+      if (unavail) {
+        actionHTML = '<span class="size-sold-out">Sold out</span>';
+      } else if (qty === 0) {
+        actionHTML = `<button class="size-add-btn" type="button" data-add-variant="${varSku}" data-parent-sku="${item.skuCode}">+ Add</button>`;
+      } else {
+        actionHTML = `
+          <div class="size-stepper">
+            <button type="button" data-variant-qty="${varSku}" data-parent-sku="${item.skuCode}" data-delta="-1">−</button>
+            <span>${qty}</span>
+            <button type="button" data-variant-qty="${varSku}" data-parent-sku="${item.skuCode}" data-delta="1">+</button>
+          </div>
+        `;
+      }
+
+      let displayLabel = v.label;
+      if (!displayLabel || displayLabel.toLowerCase() === item.name.toLowerCase()) {
+        displayLabel = `Option ${idx + 1}`;
+      }
+
+      return `
+        <div class="size-pill-row${unavail ? ' unavail' : ''}">
+          <div class="size-pill-left">
+            <span class="size-pill-label">${displayLabel}</span>
+            <span class="size-pill-price">₹${v.price}</span>
+          </div>
+          <div class="size-pill-action">${actionHTML}</div>
+        </div>
+      `;
+    }).join('');
   }
 
   // Rows are built via innerHTML after the menu fetch resolves. On some
@@ -1759,6 +1743,34 @@
     if (sheetBtn) {
       e.stopPropagation();
       openSizeSheet(sheetBtn.dataset.openSheet);
+      return;
+    }
+
+    // Add variant item button inside size sheet
+    const addVarBtn = e.target.closest('[data-add-variant]');
+    if (addVarBtn) {
+      e.stopPropagation();
+      const varSku = addVarBtn.dataset.addVariant;
+      const parentSku = addVarBtn.dataset.parentSku;
+      const varItem = window.__menuItems[varSku];
+      if (varItem) {
+        addItem(varSku, varItem.name, varItem.variant, varItem.price, varItem.tax);
+        const parentItem = window.__menuItems[parentSku];
+        if (parentItem) renderSizePills(parentItem);
+      }
+      return;
+    }
+
+    // Variant quantity stepper button inside size sheet
+    const varQtyBtn = e.target.closest('[data-variant-qty]');
+    if (varQtyBtn) {
+      e.stopPropagation();
+      const varSku = varQtyBtn.dataset.variantQty;
+      const parentSku = varQtyBtn.dataset.parentSku;
+      const delta = parseInt(varQtyBtn.dataset.delta || '1', 10);
+      changeQty(varSku, delta);
+      const parentItem = window.__menuItems[parentSku];
+      if (parentItem) renderSizePills(parentItem);
       return;
     }
 
