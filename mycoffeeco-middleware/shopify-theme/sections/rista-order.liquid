@@ -910,19 +910,24 @@
   }
   .size-pill-row {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 0; border-bottom: 1px solid #f0f0f0;
+    padding: 14px 16px; border: 1px solid #eee; border-radius: 12px;
+    margin-bottom: 10px; background: #fff; transition: background 0.15s ease, border-color 0.15s ease;
+    cursor: pointer; user-select: none;
   }
-  .size-pill-row:last-child { border-bottom: none; }
-  .size-pill-row.unavail { opacity: 0.45; }
+  .size-pill-row:hover { border-color: var(--rista-blue); background: #f8faff; }
+  .size-pill-row.unavail { opacity: 0.45; cursor: not-allowed; }
   .size-pill-left { display: flex; flex-direction: column; gap: 2px; }
-  .size-pill-label { font-size: 0.95rem; font-weight: 700; }
-  .size-pill-price { font-size: 0.85rem; color: #555; }
-  .size-pill-action { display: flex; align-items: center; }
+  .size-pill-label { font-size: 0.95rem; font-weight: 700; color: #111; }
+  .size-pill-price { font-size: 0.85rem; color: #555; font-weight: 600; }
+  .size-pill-action { display: flex; align-items: center; margin-left: 12px; }
   .size-add-btn {
-    background: var(--rista-blue); color: #fff;
+    background: var(--rista-blue); color: #fff !important;
     border: none; border-radius: 20px;
     padding: 8px 18px; font-weight: 700; font-size: 0.88rem; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(10,6,255,0.2);
+    transition: transform 0.1s ease;
   }
+  .size-add-btn:active { transform: scale(0.95); }
   .size-stepper {
     display: flex; align-items: center; gap: 12px;
     background: var(--rista-blue); border-radius: 20px;
@@ -1306,7 +1311,7 @@
 
       const inCart  = cart[varSku];
       const qty     = inCart ? inCart.qty : 0;
-      const unavail = !v.available;
+      const unavail = v.available === false;
 
       let actionHTML = '';
       if (unavail) {
@@ -1329,7 +1334,7 @@
       }
 
       return `
-        <div class="size-pill-row${unavail ? ' unavail' : ''}">
+        <div class="size-pill-row${unavail ? ' unavail' : ''}" ${unavail ? '' : `data-add-variant="${varSku}" data-parent-sku="${item.skuCode}"`}>
           <div class="size-pill-left">
             <span class="size-pill-label">${displayLabel}</span>
             <span class="size-pill-price">₹${v.price}</span>
@@ -1746,7 +1751,20 @@
       return;
     }
 
-    // Add variant item button inside size sheet
+    // Variant quantity stepper button inside size sheet
+    const varQtyBtn = e.target.closest('[data-variant-qty]');
+    if (varQtyBtn) {
+      e.stopPropagation();
+      const varSku = varQtyBtn.dataset.variantQty;
+      const parentSku = varQtyBtn.dataset.parentSku;
+      const delta = parseInt(varQtyBtn.dataset.delta || '1', 10);
+      changeQty(varSku, delta);
+      const parentItem = window.__menuItems[parentSku];
+      if (parentItem) renderSizePills(parentItem);
+      return;
+    }
+
+    // Add variant item button or row click inside size sheet
     const addVarBtn = e.target.closest('[data-add-variant]');
     if (addVarBtn) {
       e.stopPropagation();
@@ -1758,19 +1776,6 @@
         const parentItem = window.__menuItems[parentSku];
         if (parentItem) renderSizePills(parentItem);
       }
-      return;
-    }
-
-    // Variant quantity stepper button inside size sheet
-    const varQtyBtn = e.target.closest('[data-variant-qty]');
-    if (varQtyBtn) {
-      e.stopPropagation();
-      const varSku = varQtyBtn.dataset.variantQty;
-      const parentSku = varQtyBtn.dataset.parentSku;
-      const delta = parseInt(varQtyBtn.dataset.delta || '1', 10);
-      changeQty(varSku, delta);
-      const parentItem = window.__menuItems[parentSku];
-      if (parentItem) renderSizePills(parentItem);
       return;
     }
 

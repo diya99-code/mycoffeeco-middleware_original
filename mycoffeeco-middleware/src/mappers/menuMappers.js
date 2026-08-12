@@ -100,14 +100,14 @@ exports.buildMenu = (catalog, soldOut, channel) => {
                 let label = "";
                 if (child.variantAttributes && Array.isArray(child.variantAttributes)) {
                     for (const attr of child.variantAttributes) {
-                        const val = attr.value || attr.attributeValue || attr.val || attr.name;
+                        const val = attr.value || attr.attributeValue || attr.optionValue || attr.val;
                         if (val && !/group|parent/i.test(val)) {
                             label = val;
                             break;
                         }
                     }
                 }
-                if (!label || label.toLowerCase() === child.itemName.toLowerCase() || label.toLowerCase() === parent.itemName.toLowerCase()) {
+                if (!label) {
                     const cleanName = child.itemName
                         .replace(new RegExp(parent.itemName, 'gi'), '')
                         .replace(/^[\s\-\(\)\:\,]+|[\s\-\(\)\:\,]+$/g, '')
