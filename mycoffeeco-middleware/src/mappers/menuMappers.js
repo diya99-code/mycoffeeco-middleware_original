@@ -94,30 +94,27 @@ exports.buildMenu = (catalog, soldOut, channel) => {
             .filter(c => c.status === "Active");
 
         // Build variant size options from children
+        // Children are Simple items — strip parent name to get size label
         const variantOptions = children
-            .map(child => {
-                // Extract size label from variantAttributes or child.itemName
-                let label = "";
-                if (child.variantAttributes) {
-                    const attrs = Array.isArray(child.variantAttributes)
-                        ? child.variantAttributes
-                        : Object.values(child.variantAttributes);
+            .map((child, index) => {
+                // Strip parent name from child name to get the size label
+                // e.g. "Cappuccino Large" - "Cappuccino" = "Large"
+                let label = child.itemName
+                    .replace(new RegExp(parent.itemName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
+                    .replace(/^[\s\-\(\)\:\,\/]+|[\s\-\(\)\:\,\/]+$/g, '')
+                    .trim();
+
+                // If still empty, try variantAttributes on the child
+                if (!label) {
+                    const attrs = child.variantAttributes || [];
                     for (const attr of attrs) {
-                        if (typeof attr === 'string') { label = attr; break; }
-                        const val = attr.value || attr.attributeValue || attr.optionValue || attr.val;
-                        if (val && !/group|parent|active|true|false/i.test(String(val))) {
-                            label = String(val);
-                            break;
-                        }
+                        const val = typeof attr === 'string' ? attr : (attr.value || attr.attributeValue || '');
+                        if (val && !/^(true|false|active)$/i.test(val)) { label = val; break; }
                     }
                 }
-                if (!label || label.toLowerCase() === child.itemName.toLowerCase() || label.toLowerCase() === parent.itemName.toLowerCase()) {
-                    const cleanName = child.itemName
-                        .replace(new RegExp(parent.itemName, 'gi'), '')
-                        .replace(/^[\s\-\(\)\:\,]+|[\s\-\(\)\:\,]+$/g, '')
-                        .trim();
-                    label = cleanName || child.itemName;
-                }
+
+                // Last resort — use full child itemName
+                if (!label) label = child.itemName;
 
                 const built = buildItem(child, label);
                 if (!built) return null;

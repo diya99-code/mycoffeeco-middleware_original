@@ -640,11 +640,12 @@
   .rista-card.sold-out .rista-add-pill, .rista-card.sold-out .rista-qty-pill { display: none; }
 
   .rista-add-pill {
-    border: 1.5px solid var(--rista-blue); color: var(--rista-blue); background: #fff;
-    font-size: 0.72rem; font-weight: 800; padding: 5px 12px; border-radius: 16px; cursor: pointer; white-space: nowrap;
+    background: var(--rista-blue); color: #fff; border: none;
+    font-size: 0.72rem; font-weight: 800; padding: 6px 14px; border-radius: 16px; cursor: pointer; white-space: nowrap;
     touch-action: manipulation; -webkit-tap-highlight-color: transparent;
     position: relative; z-index: 3; pointer-events: auto;
   }
+  .rista-add-pill:active { opacity: 0.85; }
   .rista-qty-pill { display: flex; align-items: center; gap: 6px; background: var(--rista-blue); border-radius: 16px; padding: 3px 6px; }
   .rista-qty-pill button { width: 18px; height: 18px; border-radius: 50%; border: none; background: #fff; color: var(--rista-blue); font-weight: 800; font-size: 0.8rem; cursor: pointer; line-height: 1; }
   .rista-qty-pill .qty { color: #fff; font-size: 0.75rem; font-weight: 700; min-width: 12px; text-align: center; }
