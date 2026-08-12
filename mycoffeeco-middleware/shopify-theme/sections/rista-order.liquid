@@ -1764,8 +1764,8 @@
   });
 
   // ── EVENT DELEGATION for size sheet + simple add + stepper buttons ──
-  // Using delegation on the app root so it works after any innerHTML re-render
-  document.getElementById('rista-app').addEventListener('click', function(e) {
+  // Using delegation on the document so it works for the size sheet appended to the body
+  document.addEventListener('click', function(e) {
     // Size sheet open button
     const sheetBtn = e.target.closest('[data-open-sheet]');
     if (sheetBtn) {
