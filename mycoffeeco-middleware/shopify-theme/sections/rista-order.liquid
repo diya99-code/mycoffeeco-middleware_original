@@ -935,12 +935,17 @@
     justify-content: center !important;
     box-shadow: 0 2px 8px rgba(10,6,255,0.3) !important;
     transition: transform 0.1s ease, background-color 0.15s ease !important;
+    outline: none !important;
   }
-  .size-add-btn:hover {
-    background-color: #0503a5 !important;
+  .size-add-btn:hover,
+  .size-add-btn:focus,
+  .size-add-btn:active,
+  .size-add-btn:focus-visible {
+    background-color: #0a06ff !important;
+    background: #0a06ff !important;
     color: #ffffff !important;
   }
-  .size-add-btn:active { transform: scale(0.95); }
+  .size-add-btn:active { transform: scale(0.95) !important; }
   .size-stepper {
     display: flex; align-items: center; gap: 12px;
     background: var(--rista-blue); border-radius: 20px;
