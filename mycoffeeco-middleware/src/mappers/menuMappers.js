@@ -73,13 +73,14 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         const basePrice    = Number(priceEntry.price) || 0;
         const displayPrice = Math.round(basePrice);
         const taxAmount    = Math.round(basePrice * 0.05);
+        const sku          = item.skuCode || item.itemId;
         return {
             itemId:    item.itemId,
-            skuCode:   item.skuCode,
+            skuCode:   sku,
             name:      overrideName || item.itemName,
             price:     displayPrice,
             tax:       taxAmount,
-            available: !soldOutSkus.has(item.skuCode),
+            available: !soldOutSkus.has(sku),
             priceBook: priceEntry.priceBook
         };
     }
@@ -118,11 +119,13 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         // Skip if no variants are available on this channel
         if (variantOptions.length === 0) continue;
 
+        const parentSku = parent.skuCode || parent.itemId || (`group-${parent.itemId}`);
+
         cat.items.push({
             itemId:      parent.itemId,
             groupItemId: null,
             type:        "Group",
-            skuCode:     parent.skuCode,
+            skuCode:     parentSku,
             name:        parent.itemName,
             image:       parent.imageURL || null,
             variants:    variantOptions,   // array of { skuCode, label, price, tax, available }
@@ -143,18 +146,19 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         const basePrice    = Number(priceEntry.price) || 0;
         const displayPrice = Math.round(basePrice);
         const taxAmount    = Math.round(basePrice * 0.05);
+        const itemSku      = item.skuCode || item.itemId;
 
         cat.items.push({
             itemId:      item.itemId,
             groupItemId: null,
             type:        "Simple",
-            skuCode:     item.skuCode,
+            skuCode:     itemSku,
             name:        item.itemName,
             image:       item.imageURL || null,
             variants:    [],
             price:       displayPrice,
             tax:         taxAmount,
-            available:   !soldOutSkus.has(item.skuCode),
+            available:   !soldOutSkus.has(itemSku),
             itemNature:  item.itemNature || "Goods",
             tags:        item.itemTagIds || []
         });

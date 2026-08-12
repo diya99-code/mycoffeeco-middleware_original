@@ -77,7 +77,8 @@ exports.syncCatalogToShopify = async () => {
         const variants = groupItems.map(item => {
             // Pick the first available price from any channel as default
             const priceEntry = (item.prices || [])[0];
-            const price = priceEntry ? String(priceEntry.price) : "0";
+            const rawPrice   = priceEntry ? Number(priceEntry.price) : 0;
+            const price      = String(Math.round(rawPrice * 1.05));
 
             const variantTitle = item.variantValues && item.variantValues.length > 0
                 ? item.variantValues.map(v => v.value).join(" / ")
@@ -138,7 +139,8 @@ exports.syncCatalogToShopify = async () => {
                     if (!shopifyVariant) continue;
 
                     const priceEntry = (item.prices || [])[0];
-                    const newPrice   = priceEntry ? String(priceEntry.price) : shopifyVariant.price;
+                    const rawPrice   = priceEntry ? Number(priceEntry.price) : 0;
+                    const newPrice   = priceEntry ? String(Math.round(rawPrice * 1.05)) : shopifyVariant.price;
 
                     if (shopifyVariant.price !== newPrice) {
                         await shopifyPut(

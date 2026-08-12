@@ -1371,26 +1371,36 @@
 
   // ── ITEM CARD ──
   // Items are stored in window.__menuItems by skuCode so openSizeSheet
-  // can look them up safely without JSON in onclick attributes.
+  // and event delegation can look them up safely.
   window.__menuItems = window.__menuItems || {};
+  window.__variantParentMap = window.__variantParentMap || {};
 
   function cardHTML(item) {
+    const itemSku = item.skuCode || item.itemId || ('item-' + Math.random().toString(36).substring(2, 9));
+    item.skuCode = itemSku;
     const soldOut = !item.available;
     const isNew   = item.isNew || (item.tags && item.tags.indexOf('new') !== -1);
     const isGroup = item.type === 'Group' && item.variants && item.variants.length > 0;
 
-    // Store item for safe lookup by openSizeSheet
-    window.__menuItems[item.skuCode] = item;
+    // Store item for safe lookup
+    window.__menuItems[itemSku] = item;
+    if (isGroup) {
+      item.variants.forEach(v => {
+        if (v.skuCode) {
+          window.__variantParentMap[v.skuCode] = itemSku;
+        }
+      });
+    }
 
     // For group items, show total qty across all sizes in the badge
     const totalQty = isGroup
       ? item.variants.reduce((sum, v) => sum + (cart[v.skuCode] ? cart[v.skuCode].qty : 0), 0)
-      : (cart[item.skuCode] ? cart[item.skuCode].qty : 0);
+      : (cart[itemSku] ? cart[itemSku].qty : 0);
 
     const priceLabel = isGroup ? `from ₹${item.price}` : `₹${item.price}`;
 
     return `
-      <div class="rista-card${soldOut ? ' sold-out' : ''}" id="card-${item.skuCode}">
+      <div class="rista-card${soldOut ? ' sold-out' : ''}" id="card-${itemSku}">
         ${isNew ? '<span class="rista-card-badge">New</span>' : ''}
         ${totalQty > 0 ? `<span class="rista-card-qty-badge">${totalQty}</span>` : ''}
         ${cardImageHTML(item)}
@@ -1400,10 +1410,10 @@
             <span class="rista-card-price">${priceLabel}</span>
             ${soldOut ? '<span class="rista-sold-label">Sold out</span>' :
               isGroup
-                ? `<button class="rista-add-pill" type="button" data-open-sheet="${item.skuCode}">
+                ? `<button class="rista-add-pill" type="button" data-open-sheet="${itemSku}">
                      ${totalQty > 0 ? `<span class="rista-card-qty-inline">${totalQty}</span> sizes` : '+ Add'}
                    </button>`
-                : cardActionHTML(item, cart[item.skuCode], '')
+                : cardActionHTML(item, cart[itemSku], '')
             }
           </div>
         </div>
@@ -1411,15 +1421,15 @@
     `;
   }
   function cardActionHTML(item, inCart, variantText) {
+    const itemSku = item.skuCode || item.itemId;
     if (!inCart || inCart.qty === 0) {
-      return `<button class="rista-add-pill" onclick="addItem('${item.skuCode}', '${escapeAttr(item.name)}', '${escapeAttr(variantText)}', ${item.price}, ${item.tax || 0})"
->+ Add</button>`;
+      return `<button class="rista-add-pill" type="button" data-add-simple="${itemSku}">+ Add</button>`;
     }
     return `
       <div class="rista-qty-pill">
-        <button onclick="changeQty('${item.skuCode}', -1)">−</button>
+        <button type="button" data-qty-change="${itemSku}" data-delta="-1">−</button>
         <span class="qty">${inCart.qty}</span>
-        <button onclick="changeQty('${item.skuCode}', 1)">+</button>
+        <button type="button" data-qty-change="${itemSku}" data-delta="1">+</button>
       </div>
     `;
   }
@@ -1505,15 +1515,26 @@
 
   // ── RE-RENDER ONE ITEM'S ACTION AREA EVERYWHERE IT APPEARS ──
   function refreshItemUI(skuCode) {
-    if (!menuData) return;
-    const item = menuData.categories.flatMap(c => c.items).find(i => i.skuCode === skuCode);
+    if (!menuData || !skuCode) return;
+    const item = menuData.categories.flatMap(c => c.items).find(i => String(i.skuCode) === String(skuCode));
     if (!item) return;
-    document.querySelectorAll(`#card-${skuCode}`).forEach(cardEl => { cardEl.outerHTML = cardHTML(item); });
+    document.querySelectorAll(`[id="card-${skuCode}"]`).forEach(cardEl => { cardEl.outerHTML = cardHTML(item); });
   }
 
   // ── CART LOGIC ──
   window.addItem = function(skuCode, name, variant, price, tax) {
-    if (!cart[skuCode]) cart[skuCode] = { skuCode, name, variant, price, tax: tax || 0, qty: 0 };
+    let item = window.__menuItems[skuCode];
+    if (!item && menuData) {
+      item = menuData.categories.flatMap(c => c.items).find(i => String(i.skuCode) === String(skuCode));
+    }
+    const itemName = name || (item ? item.name : 'Item');
+    const itemPrice = price !== undefined ? price : (item ? item.price : 0);
+    const itemTax = tax !== undefined ? tax : (item ? (item.tax || 0) : 0);
+    const itemVariant = variant || '';
+
+    if (!cart[skuCode]) {
+      cart[skuCode] = { skuCode, name: itemName, variant: itemVariant, price: itemPrice, tax: itemTax, qty: 0 };
+    }
     cart[skuCode].qty++;
     refreshItemUI(skuCode);
     updateCartUI();
@@ -1522,7 +1543,11 @@
     if (!cart[skuCode]) return;
     cart[skuCode].qty += delta;
     if (cart[skuCode].qty <= 0) delete cart[skuCode];
-    refreshItemUI(skuCode);
+
+    const parentSku = window.__variantParentMap[skuCode] || skuCode;
+    refreshItemUI(parentSku);
+    if (parentSku !== skuCode) refreshItemUI(skuCode);
+
     updateCartUI();
   };
 
@@ -1543,45 +1568,49 @@
     const taxAmount = items.reduce((sum, i) => sum + (i.tax || 0) * i.qty, 0);
     const grandTotal = subtotal + taxAmount;
 
-    document.getElementById('cart-subtotal').textContent = `₹${subtotal}`;
+    const subtotalEl = document.getElementById('cart-subtotal');
+    if (subtotalEl) subtotalEl.textContent = `₹${subtotal}`;
     const taxEl = document.getElementById('cart-tax-included');
     if (taxEl) taxEl.textContent = `₹${taxAmount}`;
-    document.getElementById('cart-total').textContent = `₹${grandTotal}`;
+    const totalEl = document.getElementById('cart-total');
+    if (totalEl) totalEl.textContent = `₹${grandTotal}`;
 
     const listEl    = document.getElementById('cart-items-list');
     const footerEl  = document.getElementById('cart-footer');
     const upsellWrap = document.getElementById('upsell-wrap');
 
     if (items.length === 0) {
-      listEl.innerHTML = '<p class="rista-cart-empty">Your cart is empty</p>';
-      footerEl.style.display = 'none';
-      upsellWrap.style.display = 'none';
+      if (listEl) listEl.innerHTML = '<p class="rista-cart-empty">Your cart is empty</p>';
+      if (footerEl) footerEl.style.display = 'none';
+      if (upsellWrap) upsellWrap.style.display = 'none';
     } else {
-      listEl.innerHTML = items.map(i => `
-        <div class="rista-cart-item-card">
-          <div class="rista-cart-item-top">
-            <div class="rista-cart-item-img-fallback">${i.name.charAt(0).toUpperCase()}</div>
-            <div class="rista-cart-item-info">
-              <div class="rista-cart-item-name">${i.name}</div>
-              <div class="rista-cart-item-variant">${i.variant || 'Regular'}</div>
-              <div class="rista-cart-item-price">₹${i.price}</div>
+      if (listEl) {
+        listEl.innerHTML = items.map(i => `
+          <div class="rista-cart-item-card">
+            <div class="rista-cart-item-top">
+              <div class="rista-cart-item-img-fallback">${i.name.charAt(0).toUpperCase()}</div>
+              <div class="rista-cart-item-info">
+                <div class="rista-cart-item-name">${i.name}</div>
+                <div class="rista-cart-item-variant">${i.variant || 'Regular'}</div>
+                <div class="rista-cart-item-price">₹${i.price}</div>
+              </div>
+              <button class="rista-cart-item-remove" type="button" data-cart-remove="${i.skuCode}" title="Remove item" aria-label="Remove item">✕</button>
             </div>
-            <button class="rista-cart-item-remove" onclick="changeQty('${i.skuCode}', -${i.qty})" title="Remove item" aria-label="Remove item">✕</button>
-          </div>
-          <div class="rista-cart-item-qty-row">
-            <div class="rista-cart-item-stepper">
-              <button onclick="changeQty('${i.skuCode}', -1)">−</button>
-              <span class="qty">${i.qty}</span>
-              <button onclick="changeQty('${i.skuCode}', 1)">+</button>
+            <div class="rista-cart-item-qty-row">
+              <div class="rista-cart-item-stepper">
+                <button type="button" data-cart-stepper="${i.skuCode}" data-delta="-1">−</button>
+                <span class="qty">${i.qty}</span>
+                <button type="button" data-cart-stepper="${i.skuCode}" data-delta="1">+</button>
+              </div>
+            </div>
+            <div class="rista-cart-item-bottom">
+              <button class="rista-add-note">💬 Add a note</button>
+              <span><span class="rista-item-total-label">Item Total&nbsp;</span><span class="rista-item-total-value">₹${i.price * i.qty}</span></span>
             </div>
           </div>
-          <div class="rista-cart-item-bottom">
-            <button class="rista-add-note">💬 Add a note</button>
-            <span><span class="rista-item-total-label">Item Total&nbsp;</span><span class="rista-item-total-value">₹${i.price * i.qty}</span></span>
-          </div>
-        </div>
-      `).join('');
-      footerEl.style.display = 'block';
+        `).join('');
+      }
+      if (footerEl) footerEl.style.display = 'block';
       renderUpsell(items);
     }
   }
@@ -1722,7 +1751,7 @@
     }
   });
 
-  // ── EVENT DELEGATION for size sheet + simple add buttons ──
+  // ── EVENT DELEGATION for size sheet + simple add + stepper buttons ──
   // Using delegation on the app root so it works after any innerHTML re-render
   document.getElementById('rista-app').addEventListener('click', function(e) {
     // Size sheet open button
@@ -1730,6 +1759,43 @@
     if (sheetBtn) {
       e.stopPropagation();
       openSizeSheet(sheetBtn.dataset.openSheet);
+      return;
+    }
+
+    // Add simple item button
+    const addSimpleBtn = e.target.closest('[data-add-simple]');
+    if (addSimpleBtn) {
+      e.stopPropagation();
+      addItem(addSimpleBtn.dataset.addSimple);
+      return;
+    }
+
+    // Quantity change button on card
+    const qtyBtn = e.target.closest('[data-qty-change]');
+    if (qtyBtn) {
+      e.stopPropagation();
+      const delta = parseInt(qtyBtn.dataset.delta || '1', 10);
+      changeQty(qtyBtn.dataset.qtyChange, delta);
+      return;
+    }
+
+    // Remove item from cart button
+    const removeBtn = e.target.closest('[data-cart-remove]');
+    if (removeBtn) {
+      e.stopPropagation();
+      const sku = removeBtn.dataset.cartRemove;
+      if (cart[sku]) {
+        changeQty(sku, -cart[sku].qty);
+      }
+      return;
+    }
+
+    // Cart item stepper button
+    const cartStepperBtn = e.target.closest('[data-cart-stepper]');
+    if (cartStepperBtn) {
+      e.stopPropagation();
+      const delta = parseInt(cartStepperBtn.dataset.delta || '1', 10);
+      changeQty(cartStepperBtn.dataset.cartStepper, delta);
       return;
     }
   });

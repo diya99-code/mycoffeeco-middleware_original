@@ -80,3 +80,48 @@ exports.debugImages = async (req, res) => {
     }
 
 };
+
+/**
+ * GET /api/menu/debug-variants
+ * Shows Group parents and their children to diagnose variant linking.
+ */
+exports.debugVariants = async (req, res) => {
+
+    try {
+
+        const catalog = await catalogService.getCatalog();
+        const allItems = catalog.items || [];
+
+        // Find group parents
+        const groupParents = allItems.filter(i => i.type === "Group").slice(0, 3);
+
+        // Find children for each
+        const result = groupParents.map(parent => {
+            const children = allItems.filter(i => i.groupItemId === parent.itemId);
+            return {
+                parent: {
+                    itemId: parent.itemId,
+                    skuCode: parent.skuCode,
+                    itemName: parent.itemName,
+                    type: parent.type,
+                    variantAttributes: parent.variantAttributes
+                },
+                childCount: children.length,
+                children: children.slice(0, 5).map(c => ({
+                    itemId: c.itemId,
+                    skuCode: c.skuCode,
+                    itemName: c.itemName,
+                    groupItemId: c.groupItemId,
+                    variantAttributes: c.variantAttributes,
+                    prices: c.prices
+                }))
+            };
+        });
+
+        res.json({ success: true, groups: result });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+
+};
