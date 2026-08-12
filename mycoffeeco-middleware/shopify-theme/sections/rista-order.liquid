@@ -1345,7 +1345,7 @@
       if (unavail) {
         actionHTML = '<span class="size-sold-out">Sold out</span>';
       } else if (qty === 0) {
-        actionHTML = `<button class="size-add-btn" type="button" data-add-variant="${varSku}" data-parent-sku="${item.skuCode}">+ Add</button>`;
+        actionHTML = `<div class="size-add-btn" role="button" tabindex="0" data-add-variant="${varSku}" data-parent-sku="${item.skuCode}">+ Add</div>`;
       } else {
         actionHTML = `
           <div class="size-stepper">
