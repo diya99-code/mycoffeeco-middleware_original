@@ -35,7 +35,6 @@ exports.getMenu = async (req, res) => {
 /**
  * GET /api/menu/debug-images
  * Returns the first 5 catalog items that have any image-like field.
- * Use this to find the exact field name Rista uses for product images.
  */
 exports.debugImages = async (req, res) => {
 
@@ -43,7 +42,6 @@ exports.debugImages = async (req, res) => {
 
         const catalog = await catalogService.getCatalog();
 
-        // Find items that have any field containing "image", "photo", "img", "picture", "url"
         const itemsWithImages = (catalog.items || [])
             .filter(item => {
                 return Object.keys(item).some(key =>
@@ -52,12 +50,8 @@ exports.debugImages = async (req, res) => {
                 );
             })
             .slice(0, 5)
-            .map(item => {
-                // Return full item so we can see all keys
-                return item;
-            });
+            .map(item => item);
 
-        // Also show all unique keys across all items (to spot image field name)
         const allKeys = new Set();
         for (const item of (catalog.items || []).slice(0, 20)) {
             Object.keys(item).forEach(k => allKeys.add(k));
@@ -76,6 +70,43 @@ exports.debugImages = async (req, res) => {
             success: false,
             message: err.message
         });
+
+    }
+
+};
+
+/**
+ * GET /api/menu/debug-variants
+ * Shows raw Rista data for Group items and their children
+ * so we can identify how sizes are stored.
+ */
+exports.debugVariants = async (req, res) => {
+
+    try {
+
+        const catalog = await catalogService.getCatalog();
+        const items = catalog.items || [];
+
+        // Find first 3 Group parents
+        const groups = items.filter(i => i.type === 'Group').slice(0, 3);
+        const result = groups.map(parent => {
+            const children = items.filter(c => c.groupItemId === parent.itemId);
+            return {
+                parent: { itemId: parent.itemId, itemName: parent.itemName, skuCode: parent.skuCode, variantAttributes: parent.variantAttributes },
+                children: children.map(c => ({
+                    itemId: c.itemId, itemName: c.itemName, skuCode: c.skuCode,
+                    variantAttributes: c.variantAttributes, groupItemId: c.groupItemId,
+                    // show all keys
+                    allFields: Object.keys(c)
+                }))
+            };
+        });
+
+        res.json({ success: true, groups: result });
+
+    } catch (err) {
+
+        res.status(500).json({ success: false, message: err.message });
 
     }
 
