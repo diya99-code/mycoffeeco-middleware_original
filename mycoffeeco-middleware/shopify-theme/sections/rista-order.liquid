@@ -920,7 +920,7 @@
   .size-pill-label { font-size: 0.95rem; font-weight: 700; color: #111; }
   .size-pill-price { font-size: 0.85rem; color: #555; font-weight: 600; }
   .size-pill-action { display: flex; align-items: center; margin-left: 12px; }
-  .size-add-btn {
+  #size-sheet-overlay .size-add-btn {
     background-color: #0a06ff !important;
     background: #0a06ff !important;
     color: #ffffff !important;
@@ -934,18 +934,27 @@
     align-items: center !important;
     justify-content: center !important;
     box-shadow: 0 2px 8px rgba(10,6,255,0.3) !important;
-    transition: transform 0.1s ease, background-color 0.15s ease !important;
+    transition: transform 0.1s ease !important;
     outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    text-decoration: none !important;
+    opacity: 1 !important;
   }
-  .size-add-btn:hover,
-  .size-add-btn:focus,
-  .size-add-btn:active,
-  .size-add-btn:focus-visible {
+  #size-sheet-overlay .size-add-btn::after,
+  #size-sheet-overlay .size-add-btn::before {
+    display: none !important;
+  }
+  #size-sheet-overlay .size-add-btn:hover,
+  #size-sheet-overlay .size-add-btn:focus,
+  #size-sheet-overlay .size-add-btn:active,
+  #size-sheet-overlay .size-add-btn:focus-visible {
     background-color: #0a06ff !important;
     background: #0a06ff !important;
     color: #ffffff !important;
+    opacity: 1 !important;
+    box-shadow: 0 2px 8px rgba(10,6,255,0.3) !important;
   }
-  .size-add-btn:active { transform: scale(0.95) !important; }
+  #size-sheet-overlay .size-add-btn:active { transform: scale(0.95) !important; }
   .size-stepper {
     display: flex; align-items: center; gap: 12px;
     background: var(--rista-blue); border-radius: 20px;
