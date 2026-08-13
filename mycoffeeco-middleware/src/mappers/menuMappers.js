@@ -93,18 +93,46 @@ exports.buildMenu = (catalog, soldOut, channel) => {
         const children = (childrenByParent[parentItemId] || [])
             .filter(c => c.status === "Active");
 
-        // Build variant size options from children
-        // Children are Simple items — strip parent name to get size label
-        const variantOptions = children
-            .map((child, index) => {
-                // Strip parent name from child name to get the size label
-                // e.g. "Cappuccino Large" - "Cappuccino" = "Large"
-                let label = child.itemName
-                    .replace(new RegExp(parent.itemName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
-                    .replace(/^[\s\-\(\)\:\,\/]+|[\s\-\(\)\:\,\/]+$/g, '')
-                    .trim();
+        // Extract size labels from parent's variantAttributes
+        // Rista stores: variantAttributes: [{ name: "Size", values: ["Regular","Large","Extra Large"] }]
+        const sizeLabels = [];
+        if (parent.variantAttributes && Array.isArray(parent.variantAttributes)) {
+            for (const attr of parent.variantAttributes) {
+                if (attr.name === "Size" && Array.isArray(attr.values)) {
+                    sizeLabels.push(...attr.values);
+                }
+            }
+        }
 
-                // If still empty, try variantAttributes on the child
+        // Build variant size options from children
+        // Map children to parent's size labels by position (sorted by price ascending)
+        const sortedChildren = children.sort((a, b) => {
+            const priceA = (a.prices || []).find(p => p.channel === channel)?.price || 0;
+            const priceB = (b.prices || []).find(p => p.channel === channel)?.price || 0;
+            return Number(priceA) - Number(priceB);
+        });
+
+        const variantOptions = sortedChildren
+            .map((child, index) => {
+                // Use size label from parent's variantAttributes array by position
+                // Fall back to stripping parent name if no labels array
+                let label = sizeLabels[index] || '';
+
+                // FALLBACK: If no size labels from parent, use default size names by position
+                if (!label && sortedChildren.length > 0) {
+                    const defaultSizes = ['Regular', 'Large', 'Extra Large', 'Jumbo', 'Party Size'];
+                    label = defaultSizes[index] || `Option ${index + 1}`;
+                }
+
+                if (!label) {
+                    // Fallback: strip parent name from child name
+                    label = child.itemName
+                        .replace(new RegExp(parent.itemName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
+                        .replace(/^[\s\-\(\)\:\,\/]+|[\s\-\(\)\:\,\/]+$/g, '')
+                        .trim();
+                }
+
+                // If still empty, try variantAttributes on the child itself
                 if (!label) {
                     const attrs = child.variantAttributes || [];
                     for (const attr of attrs) {

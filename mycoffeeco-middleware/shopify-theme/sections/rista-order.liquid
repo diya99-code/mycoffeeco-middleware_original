@@ -921,8 +921,12 @@
   .size-pill-label { font-size: 0.95rem; font-weight: 700; color: #111; }
   .size-pill-price { font-size: 0.85rem; color: #555; font-weight: 600; }
   .size-pill-action { display: flex; align-items: center; margin-left: 12px; }
-  #size-sheet-overlay .size-add-btn {
+  
+  /* AGGRESSIVE BUTTON STYLING - Override ALL Shopify theme styles */
+  button[data-add-variant],
+  [data-add-variant] {
     background-color: #0a06ff !important;
+    background-image: none !important;
     background: #0a06ff !important;
     color: #ffffff !important;
     border: none !important;
@@ -940,22 +944,49 @@
     -webkit-tap-highlight-color: transparent !important;
     text-decoration: none !important;
     opacity: 1 !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
   }
-  #size-sheet-overlay .size-add-btn::after,
-  #size-sheet-overlay .size-add-btn::before {
+  button[data-add-variant]::after,
+  button[data-add-variant]::before,
+  [data-add-variant]::after,
+  [data-add-variant]::before {
     display: none !important;
+    content: none !important;
+    background: none !important;
   }
-  #size-sheet-overlay .size-add-btn:hover,
-  #size-sheet-overlay .size-add-btn:focus,
-  #size-sheet-overlay .size-add-btn:active,
-  #size-sheet-overlay .size-add-btn:focus-visible {
+  button[data-add-variant]:hover,
+  button[data-add-variant]:focus,
+  button[data-add-variant]:active,
+  button[data-add-variant]:focus-visible,
+  button[data-add-variant]:visited,
+  button[data-add-variant]:link,
+  [data-add-variant]:hover,
+  [data-add-variant]:focus,
+  [data-add-variant]:active,
+  [data-add-variant]:focus-visible,
+  [data-add-variant]:visited,
+  [data-add-variant]:link {
     background-color: #0a06ff !important;
+    background-image: none !important;
     background: #0a06ff !important;
     color: #ffffff !important;
     opacity: 1 !important;
     box-shadow: 0 2px 8px rgba(10,6,255,0.3) !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    border: none !important;
+    outline: none !important;
   }
-  #size-sheet-overlay .size-add-btn:active { transform: scale(0.95) !important; }
+  button[data-add-variant]:active,
+  [data-add-variant]:active { 
+    transform: scale(0.95) !important;
+    background: #0a06ff !important;
+    background-color: #0a06ff !important;
+    color: #ffffff !important;
+  }
   .size-stepper {
     display: flex; align-items: center; gap: 12px;
     background: var(--rista-blue); border-radius: 20px;
@@ -1346,7 +1377,7 @@
       if (unavail) {
         actionHTML = '<span class="size-sold-out">Sold out</span>';
       } else if (qty === 0) {
-        actionHTML = `<div class="size-add-btn" role="button" tabindex="0" data-add-variant="${varSku}" data-parent-sku="${item.skuCode}">+ Add</div>`;
+        actionHTML = `<button type="button" data-add-variant="${varSku}" data-parent-sku="${item.skuCode}" style="background:#0a06ff !important;background-color:#0a06ff !important;background-image:none !important;color:#fff !important;border:none !important;padding:8px 20px !important;border-radius:20px !important;font-weight:800 !important;font-size:0.88rem !important;cursor:pointer !important;outline:none !important;box-shadow:0 2px 8px rgba(10,6,255,0.3) !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;text-decoration:none !important;-webkit-appearance:none !important;appearance:none !important;">+ Add</button>`;
       } else {
         actionHTML = `
           <div class="size-stepper">
@@ -1807,7 +1838,13 @@
     // Add variant item button or row click inside size sheet
     const addVarBtn = e.target.closest('[data-add-variant]');
     if (addVarBtn) {
+      e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      // Force maintain button color immediately
+      addVarBtn.style.cssText = 'background:#0a06ff !important;background-color:#0a06ff !important;color:#fff !important;background-image:none !important;border:none !important;padding:8px 20px !important;border-radius:20px !important;font-weight:800 !important;font-size:0.88rem !important;cursor:pointer !important;';
+      
       const varSku = String(addVarBtn.dataset.addVariant || '');
       const parentSku = String(addVarBtn.dataset.parentSku || '');
       const varItem = window.__menuItems[varSku] || {};
@@ -1817,6 +1854,14 @@
       const parentItem = window.__menuItems[parentSku] ||
         (menuData && menuData.categories.flatMap(c => c.items).find(i => String(i.skuCode) === parentSku));
       if (parentItem) renderSizePills(parentItem);
+      
+      // Force button color again after re-render
+      requestAnimationFrame(() => {
+        const btns = document.querySelectorAll('[data-add-variant]');
+        btns.forEach(btn => {
+          btn.style.cssText = 'background:#0a06ff !important;background-color:#0a06ff !important;color:#fff !important;background-image:none !important;border:none !important;padding:8px 20px !important;border-radius:20px !important;font-weight:800 !important;font-size:0.88rem !important;cursor:pointer !important;';
+        });
+      });
       return;
     }
 
@@ -1869,6 +1914,32 @@
   updateCartUI();
   applyOffsets();
   getSkuVariantMap();
+  
+  // ── AGGRESSIVE BUTTON COLOR ENFORCER ──
+  // This watches for any button color changes and forces them back to blue
+  const enforceButtonColors = () => {
+    const addButtons = document.querySelectorAll('[data-add-variant], button[data-add-variant]');
+    addButtons.forEach(btn => {
+      const currentBg = window.getComputedStyle(btn).backgroundColor;
+      const currentColor = window.getComputedStyle(btn).color;
+      // Check if background is not blue or color is not white
+      if (currentBg !== 'rgb(10, 6, 255)' || currentColor !== 'rgb(255, 255, 255)') {
+        btn.style.cssText = 'background:#0a06ff !important;background-color:#0a06ff !important;color:#fff !important;background-image:none !important;border:none !important;padding:8px 20px !important;border-radius:20px !important;font-weight:800 !important;font-size:0.88rem !important;cursor:pointer !important;outline:none !important;';
+      }
+    });
+  };
+  
+  // Run enforcer every 100ms
+  setInterval(enforceButtonColors, 100);
+  
+  // Also enforce on any DOM changes
+  const observer = new MutationObserver(enforceButtonColors);
+  observer.observe(document.body, { 
+    childList: true, 
+    subtree: true, 
+    attributes: true, 
+    attributeFilter: ['style', 'class'] 
+  });
 })();
 </script>
 
