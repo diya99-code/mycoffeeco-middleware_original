@@ -14,14 +14,7 @@ exports.getMenu = async (req, res) => {
             });
         }
 
-        // HYBRID CHANNEL STRATEGY:
-        // Use RISTA_MENU_CHANNEL for menu (has prices) if set,
-        // but orders will use SHOPIFY_RISTA_CHANNEL (for webhook)
-        const menuChannel = process.env.RISTA_MENU_CHANNEL || channel;
-        
-        console.log(`[menuController] Fetching menu - Branch: ${branch}, Requested Channel: ${channel}, Menu Channel: ${menuChannel}`);
-
-        const menu = await menuService.getMenu(branch, menuChannel);
+        const menu = await menuService.getMenu(branch, channel);
 
         // Attach branch to the response
         menu.branch = branch;
