@@ -56,9 +56,10 @@
           <!-- Order Type (Channel) Pill -->
           <div class="rista-loc-pill" id="home-channel-part">
             <span class="rista-channel-icon" id="home-channel-icon">🛍️</span>
-            <span class="rista-channel-value" id="home-channel-label">Takeaway</span>
+            <span class="rista-channel-value" id="home-channel-label">Website</span>
             <span class="chevron">⌄</span>
             <select id="channel-select" class="rista-hidden-select" aria-label="Choose order type">
+              <option value="Website">Website</option>
               <option value="Takeaway">Takeaway</option>
               <option value="Dine In">Dine In</option>
               <option value="Delivery">Delivery</option>
@@ -71,10 +72,10 @@
             <span class="rista-loc-value" id="home-branch-label">Loading…</span>
             <span class="chevron">⌄</span>
             <select id="branch-select" class="rista-hidden-select" aria-label="Choose location">
-              <option value="HO"  data-channels="Delivery,Dine In,Takeaway">Head Office — Sushant Lok</option>
-              <option value="DB1" data-channels="Dine In,Takeaway">DLF Building 14</option>
-              <option value="DB6" data-channels="Dine In,Takeaway">DLF Building 6</option>
-              <option value="IFT" data-channels="Dine In,Takeaway">AIPL — Sector 62</option>
+              <option value="HO"  data-channels="Website,Delivery,Dine In,Takeaway">Head Office — Sushant Lok</option>
+              <option value="DB1" data-channels="Website,Dine In,Takeaway">DLF Building 14</option>
+              <option value="DB6" data-channels="Website,Dine In,Takeaway">DLF Building 6</option>
+              <option value="IFT" data-channels="Website,Dine In,Takeaway">AIPL — Sector 62</option>
             </select>
           </div>
         </div>
@@ -263,6 +264,7 @@
           <select id="branch-select-cart" class="rista-hidden-select" aria-label="Choose location"></select>
         </span>
         <select id="channel-select-cart" class="rista-hidden-select" aria-label="Choose order type" style="display:none">
+          <option value="Website">Website</option>
           <option value="Takeaway">Takeaway</option>
           <option value="Dine In">Dine In</option>
           <option value="Delivery">Delivery</option>
@@ -1238,14 +1240,16 @@
   }
   function updateLabels() {
     const branchText = branchSelect.options[branchSelect.selectedIndex].text;
-    const channelVal = channelSelect.value || 'Takeaway';
+    const channelVal = channelSelect.value || 'Website';
 
     const channelLabelEl = document.getElementById('home-channel-label');
     const channelIconEl  = document.getElementById('home-channel-icon');
     if (channelLabelEl) channelLabelEl.textContent = channelVal;
     if (channelIconEl) {
-      if (channelVal === 'Delivery') channelIconEl.textContent = '🛵';
+      if (channelVal === 'Website') channelIconEl.textContent = '🌐';
+      else if (channelVal === 'Delivery') channelIconEl.textContent = '🛵';
       else if (channelVal === 'Dine In') channelIconEl.textContent = '🍽️';
+      else if (channelVal === 'Takeaway') channelIconEl.textContent = '🛍️';
       else channelIconEl.textContent = '🛍️';
     }
 
