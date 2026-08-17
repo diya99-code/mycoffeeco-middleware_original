@@ -1792,14 +1792,24 @@
         alert(`Note: "${unmatched.join('", "')}" couldn't be added (not found in store) — proceeding with the rest.`);
       }
 
-     await fetch('/cart/update.js', {
+     // Get referral code from localStorage if available
+      const referralCode = localStorage.getItem('mcc_referral_code');
+      const cartAttributes = {
+        'rista_branch': branchSelect.value,
+        'rista_channel': channelSelect.value
+      };
+      
+      // Add referral code if present
+      if (referralCode) {
+        cartAttributes['referral_code'] = referralCode;
+        console.log('[Checkout] Adding referral code to order:', referralCode);
+      }
+      
+      await fetch('/cart/update.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            attributes: {
-                'rista_branch': branchSelect.value,
-                'rista_channel': channelSelect.value
-            }
+            attributes: cartAttributes
         })
       });
 
