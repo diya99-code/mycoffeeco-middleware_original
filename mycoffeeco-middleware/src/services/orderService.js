@@ -1,4 +1,5 @@
 const ristaClient = require("../clients/ristaClient");
+const referralStore = require("../models/referralModel");
 
 const {
     mapShopifyOrderToRista
@@ -60,11 +61,49 @@ exports.createOrder = async (shopifyOrder) => {
     console.log("Total:", payload.totalAmount);
     console.log("Customer ID in payload:", payload.customer?.id || "(none)");
 
-    return await ristaClient.post(
+    // Check for referral code in note_attributes
+    const referralCode = (shopifyOrder.note_attributes || [])
+        .find(attr => attr.name === 'referral_code')?.value;
+
+    if (referralCode) {
+        console.log(`[orderService] Referral code detected: ${referralCode}`);
+    }
+
+    const result = await ristaClient.post(
         "/sale",
         payload,
         `sale_${shopifyOrder.id}`
     );
+
+    // Track order with referral if code is valid
+    if (referralCode && referralStore.isValidReferral(referralCode)) {
+        try {
+            const trackingData = {
+                orderId: shopifyOrder.id,
+                invoiceNumber: result.invoiceNumber,
+                shopifyOrderNumber: shopifyOrder.order_number || shopifyOrder.name,
+                amount: parseFloat(shopifyOrder.total_price) || 0,
+                customerEmail: shopifyOrder.customer?.email || shopifyOrder.email,
+                customerPhone: shopifyOrder.customer?.phone || shopifyOrder.billing_address?.phone,
+                branch: payload.branchCode,
+                channel: payload.channel
+            };
+
+            const tracked = referralStore.trackOrder(referralCode, trackingData);
+            console.log(`[orderService] Order tracked to referral ${referralCode}. Commission: ₹${tracked.commission}`);
+            
+            // Add referral info to result
+            result.referral = {
+                code: referralCode,
+                commission: tracked.commission
+            };
+        } catch (refErr) {
+            console.error(`[orderService] Failed to track referral: ${refErr.message}`);
+            // Don't fail the order if referral tracking fails
+        }
+    }
+
+    return result;
 
 };
 

@@ -11,6 +11,7 @@ const menuRoutes        = require("./routes/menu");
 const shopifyRoutes     = require("./routes/shopify");
 const authRoutes        = require("./routes/auth");
 const directOrderRoutes = require("./routes/directOrder");
+const referralRoutes    = require("./routes/referrals");
 
 // Apply express.json() globally EXCEPT for routes that need raw body for HMAC verification
 app.use((req, res, next) => {
@@ -50,6 +51,7 @@ app.use("/api/menu",     menuRoutes);
 app.use("/shopify",      shopifyRoutes);
 app.use("/auth",         authRoutes);
 app.use("/direct-order", directOrderRoutes);
+app.use("/api/referrals", referralRoutes);
 
 // Global error handler — catches any unhandled errors from routes/controllers
 app.use((err, _req, res, _next) => {
