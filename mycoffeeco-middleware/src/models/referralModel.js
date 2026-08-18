@@ -36,6 +36,16 @@ class ReferralStore {
             commission: 10,
             active: true
         });
+
+        // Diya's referral code
+        this.createReferral({
+            code: 'STA8QGZ13',
+            name: 'Diya',
+            email: 'guptadiya172@gmail.com',
+            type: 'staff',
+            commission: 5,
+            active: true
+        });
     }
 
     /**
