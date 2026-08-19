@@ -1,0 +1,1544 @@
+{% comment %}
+  Ad Campaign Landing Page - DLF Cyber City Location
+  
+  This page is specifically designed for Meta and Google Ads campaigns.
+  Features:
+  - Hero banner with location info
+  - Get Directions CTA with working map
+  - Product showcases
+  - Store information and hours
+  - Mobile-optimized design
+  
+  SEO: Set page to noindex to hide from main navigation
+{% endcomment %}
+
+<meta name="robots" content="noindex, nofollow">
+
+<div class="ad-landing-page" id="dlf-landing">
+  
+  {%- comment -%} ══════════════ HERO SECTION ══════════════ {%- endcomment -%}
+  <section class="hero-section">
+    <div class="hero-container">
+      <div class="hero-badge">
+        <span class="walk-icon">🚶</span>
+        <span class="badge-text">2 MIN WALK</span>
+      </div>
+      
+      <h1 class="hero-title">
+        Your Next<br>
+        Coffee Is<br>
+        <span class="highlight">2 Minutes</span><br>
+        Away.
+      </h1>
+      
+      <div class="location-card">
+        <span class="pin-icon">📍</span>
+        <div class="location-text">
+          <strong>{{ section.settings.building_name | default: 'Building 14 • DLF Cyber City' }}</strong>
+          <p>{{ section.settings.location_subtitle | default: 'Opposite Concentrix Recruitment Center' }}</p>
+        </div>
+      </div>
+      
+      <div class="hero-copy">
+        <p>{{ section.settings.hero_line1 | default: 'Running between meetings?' }}</p>
+        <p>{{ section.settings.hero_line2 | default: 'Fresh specialty coffee.' }}</p>
+        <p>{{ section.settings.hero_line3 | default: 'Just outside Building 14.' }}</p>
+        <p>{{ section.settings.hero_line4 | default: 'Walk over in two minutes.' }}</p>
+      </div>
+      
+      <div class="features-row">
+        <div class="feature-item">
+          <div class="feature-icon">🚶</div>
+          <span>2 MIN WALK</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">☕</div>
+          <span>FRESH DAILY</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <span>FAST PICKUP</span>
+        </div>
+      </div>
+      
+      <div class="brand-footer">
+        <div class="brand-logo">
+          {%- if section.settings.logo != blank -%}
+            <img src="{{ section.settings.logo | image_url: width: 200 }}" alt="My Coffee Co.">
+          {%- else -%}
+            <span class="logo-icon">🦌</span>
+            <span class="logo-text">MY COFFEE CO.</span>
+          {%- endif -%}
+        </div>
+        <p class="brand-tagline">{{ section.settings.tagline | default: 'Small Sips. Big Moments.' }}</p>
+      </div>
+      
+      <button class="cta-button primary" id="hero-directions" type="button">
+        Get Directions →
+      </button>
+      
+      <div class="hero-footer-bar">
+        <div class="footer-item">
+          <span class="star-icon">⭐</span>
+          <span>{{ section.settings.rating | default: '4.8' }} Rated</span>
+        </div>
+        <div class="footer-item">
+          <span class="bean-icon">☕</span>
+          <span>Premium Specialty Arabica</span>
+        </div>
+        <div class="footer-item">
+          <span class="bolt-icon">⚡</span>
+          <span>Grab & Go</span>
+        </div>
+      </div>
+      
+      {%- if section.settings.hero_image != blank -%}
+      <div class="hero-image">
+        <img src="{{ section.settings.hero_image | image_url: width: 800 }}" alt="My Coffee Co. - DLF Cyber City" loading="eager">
+      </div>
+      {%- endif -%}
+    </div>
+  </section>
+  
+  {%- comment -%} ══════════════ LOCATION SECTION ══════════════ {%- endcomment -%}
+  <section class="location-section">
+    <div class="container">
+      <div class="location-header">
+        <span class="logo-mini">☕ MY COFFEE CO.</span>
+        <button class="open-now-badge" type="button">
+          <span class="open-dot"></span>
+          Open Now
+        </button>
+      </div>
+      
+      <div class="location-info">
+        <span class="location-pin">📍</span>
+        <span class="location-name">{{ section.settings.location_short | default: 'MyCoffee.co, DLF CYBER CITY' }}</span>
+      </div>
+      
+      <h2 class="section-title">
+        You're already here.<br>
+        <span class="blue-text">Great coffee is downstairs.</span>
+      </h2>
+      
+      <p class="section-description">
+        {{ section.settings.location_description | default: 'Specialty coffee crafted from premium Indian Arabica beans—inside your building. Just take the lift down.' }}
+      </p>
+      
+      <div class="quick-actions">
+        <div class="action-card">
+          <span class="action-icon">🚶</span>
+          <strong>2 min walk</strong>
+          <small>from your desk</small>
+        </div>
+        <div class="action-card">
+          <span class="action-icon">⏰</span>
+          <strong>Open Now</strong>
+          <small>until 10 PM</small>
+        </div>
+        <div class="action-card">
+          <span class="action-icon">☕</span>
+          <strong>Specialty Arabica</strong>
+          <small>Premium coffee</small>
+        </div>
+        <div class="action-card">
+          <span class="action-icon">⭐</span>
+          <strong>Premium Taste</strong>
+          <small>Crafted for you</small>
+        </div>
+      </div>
+      
+      <div class="cta-buttons">
+        <button class="cta-button primary" id="main-directions" type="button">
+          <span class="nav-icon">🧭</span>
+          Get Directions
+          <small>Opens in Google Maps</small>
+        </button>
+        <a href="{{ section.settings.menu_link | default: '/pages/menu' }}" class="cta-button secondary">
+          <span class="menu-icon">📋</span>
+          View Menu
+        </a>
+      </div>
+      
+      {%- if section.settings.interior_image != blank -%}
+      <div class="location-image">
+        <img src="{{ section.settings.interior_image | image_url: width: 800 }}" alt="Inside DLF Cyber City Store" loading="lazy">
+      </div>
+      {%- endif -%}
+    </div>
+  </section>
+  
+  {%- comment -%} ══════════════ PRODUCT SHOWCASE ══════════════ {%- endcomment -%}
+  <section class="products-section">
+    <div class="container">
+      <p class="section-label">WHY PEOPLE WALK HERE</p>
+      <h2 class="section-title">Coffee that fits your day.</h2>
+      
+      <div class="product-grid">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'product' -%}
+          <div class="product-card" {{ block.shopify_attributes }}>
+            {%- if block.settings.product_image != blank -%}
+            <div class="product-image">
+              <img src="{{ block.settings.product_image | image_url: width: 400 }}" alt="{{ block.settings.product_name }}" loading="lazy">
+              <span class="product-icon">{{ block.settings.product_icon | default: '☕' }}</span>
+            </div>
+            {%- endif -%}
+            <h3>{{ block.settings.product_name }}</h3>
+            <p>{{ block.settings.product_description }}</p>
+            {%- if block.settings.product_price != blank -%}
+            <span class="product-price">{{ block.settings.product_price }}</span>
+            {%- endif -%}
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+  
+  {%- comment -%} ══════════════ SIGNATURE DRINKS ══════════════ {%- endcomment -%}
+  <section class="signature-section">
+    <div class="container">
+      <p class="section-label">SIGNATURE DRINKS</p>
+      <h2 class="section-title">Crafted for the moments that matter.</h2>
+      
+      <div class="signature-grid">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'signature' -%}
+          <div class="signature-card" {{ block.shopify_attributes }}>
+            {%- if block.settings.signature_image != blank -%}
+            <img src="{{ block.settings.signature_image | image_url: width: 500 }}" alt="{{ block.settings.signature_name }}" loading="lazy">
+            {%- endif -%}
+            <div class="signature-info">
+              <h3>{{ block.settings.signature_name }}</h3>
+              <p>{{ block.settings.signature_description }}</p>
+              <button class="order-button" type="button">Order Now →</button>
+            </div>
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+  
+  {%- comment -%} ══════════════ MAP SECTION ══════════════ {%- endcomment -%}
+  <section class="map-section">
+    <div class="container">
+      <div class="map-grid">
+        <div class="map-container" id="google-map">
+          <iframe 
+            width="100%" 
+            height="400" 
+            frameborder="0" 
+            style="border:0" 
+            src="https://www.google.com/maps/embed/v1/place?key={{ section.settings.google_maps_api_key }}&q={{ section.settings.map_query | default: 'My+Coffee+Co+DLF+Cyber+City+Gurgaon' | url_encode }}&zoom=16"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
+          <button class="map-cta" id="map-directions" type="button">
+            Get Directions
+          </button>
+        </div>
+        
+        <div class="store-info-card">
+          <p class="info-label">FIND US</p>
+          <h3>Inside DLF Cyber City</h3>
+          
+          <div class="info-row">
+            <span class="info-icon">📍</span>
+            <div>
+              <strong>{{ section.settings.building_name | default: 'Building 14 • DLF Cyber City' }}</strong>
+              <p>{{ section.settings.full_address | default: 'Sector 24, Gurugram, Haryana 122022' }}</p>
+            </div>
+          </div>
+          
+          <div class="info-row">
+            <span class="info-icon">⏰</span>
+            <div>
+              <strong>Store Hours</strong>
+              <p>{{ section.settings.weekday_hours | default: 'Monday - Friday: 8 AM - 10 PM' }}</p>
+              <p>{{ section.settings.weekend_hours | default: 'Saturday: 9 AM - 6 PM' }}</p>
+            </div>
+          </div>
+          
+          <div class="info-row">
+            <span class="info-icon">📞</span>
+            <div>
+              <strong>Contact</strong>
+              <p>{{ section.settings.phone | default: '+91 98765 43210' }}</p>
+            </div>
+          </div>
+          
+          <button class="navigate-button" id="store-info-directions" type="button">
+            <span class="nav-icon">🧭</span> Navigate Now
+          </button>
+          
+          <p class="map-footnote">Get walking directions on Google Maps →</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  {%- comment -%} ══════════════ SOCIAL PROOF ══════════════ {%- endcomment -%}
+  <section class="social-section">
+    <div class="container">
+      <p class="section-label">REAL MOMENTS. REAL PEOPLE.</p>
+      
+      <div class="social-grid">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'testimonial' -%}
+          <div class="social-card" {{ block.shopify_attributes }}>
+            {%- if block.settings.testimonial_image != blank -%}
+            <img src="{{ block.settings.testimonial_image | image_url: width: 400 }}" alt="{{ block.settings.testimonial_quote }}" loading="lazy">
+            {%- endif -%}
+            <div class="social-overlay">
+              <p class="social-quote">"{{ block.settings.testimonial_quote }}"</p>
+            </div>
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+  
+  {%- comment -%} ══════════════ FINAL CTA ══════════════ {%- endcomment -%}
+  <section class="final-cta-section">
+    <div class="container">
+      <div class="final-cta-content">
+        {%- if section.settings.cta_image != blank -%}
+        <img src="{{ section.settings.cta_image | image_url: width: 200 }}" alt="My Coffee Co." class="cta-logo" loading="lazy">
+        {%- endif -%}
+        
+        <h2 class="cta-title">
+          Your next coffee is<br>
+          <span class="blue-text">already downstairs.</span>
+        </h2>
+        <p class="cta-subtitle">{{ section.settings.cta_subtitle | default: 'Skip the queue. Skip the detour. Just great coffee.' }}</p>
+        
+        <div class="final-buttons">
+          <button class="cta-button primary large" id="final-directions" type="button">
+            <span class="nav-icon">🧭</span> Get Directions
+          </button>
+          <button class="cta-button secondary large" id="call-store" type="button">
+            <span class="phone-icon">📞</span> Call Store
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  {%- comment -%} ══════════════ STICKY FOOTER BAR ══════════════ {%- endcomment -%}
+  <div class="sticky-footer-bar" id="sticky-footer">
+    <div class="footer-content">
+      <div class="footer-location">
+        <span class="pin-icon">📍</span>
+        <div>
+          <strong>{{ section.settings.location_short | default: 'Building 14 • DLF Cyber City' }}</strong>
+          <small>{{ section.settings.distance | default: '2 min walk from your desk' }}</small>
+        </div>
+      </div>
+      <div class="footer-actions">
+        <button class="footer-button" id="sticky-directions" type="button">
+          <span class="nav-icon">🧭</span> Get Directions
+        </button>
+        <button class="footer-button secondary" id="sticky-call" type="button">
+          <span class="phone-icon">📞</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<style>
+  /* ══════════════ RESET & BASE ══════════════ */
+  .ad-landing-page {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    color: #1a1a1a;
+    line-height: 1.6;
+    background: #ffffff;
+  }
+  
+  .ad-landing-page * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  /* ══════════════ HERO SECTION ══════════════ */
+  .hero-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-container {
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffc107;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .walk-icon {
+    font-size: 18px;
+  }
+  
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1.1;
+    color: #0a06ff;
+    margin-bottom: 24px;
+  }
+  
+  .hero-title .highlight {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: underline;
+    text-decoration-color: #ffc107;
+    text-decoration-thickness: 4px;
+    text-underline-offset: 4px;
+  }
+  
+  .location-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  
+  .pin-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  
+  .location-text strong {
+    display: block;
+    font-size: 16px;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  
+  .location-text p {
+    font-size: 14px;
+    color: #6c757d;
+  }
+  
+  .hero-copy {
+    margin-bottom: 24px;
+  }
+  
+  .hero-copy p {
+    font-size: 16px;
+    color: #495057;
+    margin-bottom: 4px;
+  }
+  
+  .features-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  
+  .feature-item {
+    text-align: center;
+  }
+  
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  
+  .feature-item span {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #495057;
+    letter-spacing: 0.5px;
+  }
+  
+  .brand-footer {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .logo-icon {
+    font-size: 32px;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+    font-weight: 900;
+    color: #0a06ff;
+  }
+  
+  .brand-tagline {
+    font-size: 14px;
+    color: #6c757d;
+  }
+  
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    gap: 8px;
+  }
+  
+  .cta-button.primary {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: #1a1a1a;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+  }
+  
+  .cta-button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 193, 7, 0.5);
+  }
+  
+  .cta-button.secondary {
+    background: white;
+    color: #0a06ff;
+    border: 2px solid #0a06ff;
+  }
+  
+  .cta-button.secondary:hover {
+    background: #0a06ff;
+    color: white;
+  }
+  
+  .cta-button small {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.8;
+  }
+  
+  .hero-footer-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    background: #0a06ff;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 24px;
+    color: white;
+  }
+  
+  .footer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 12px;
+    gap: 4px;
+  }
+  
+  .footer-item span:first-child {
+    font-size: 20px;
+  }
+  
+  .hero-image {
+    margin-top: 32px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  
+  .hero-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* ══════════════ LOCATION SECTION ══════════════ */
+  .location-section {
+    padding: 60px 20px;
+  }
+  
+  .location-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  
+  .logo-mini {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0a06ff;
+  }
+  
+  .open-now-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #d4edda;
+    color: #155724;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .open-dot {
+    width: 8px;
+    height: 8px;
+    background: #28a745;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .location-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #6c757d;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+  }
+  
+  .blue-text {
+    color: #0a06ff;
+  }
+  
+  .section-description {
+    font-size: 16px;
+    color: #495057;
+    margin-bottom: 32px;
+    max-width: 600px;
+  }
+  
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  
+  .action-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+  }
+  
+  .action-icon {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .action-card strong {
+    display: block;
+    font-size: 14px;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  
+  .action-card small {
+    font-size: 12px;
+    color: #6c757d;
+  }
+  
+  .cta-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  
+  .location-image {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  
+  .location-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* ══════════════ PRODUCT SECTIONS ══════════════ */
+  .products-section,
+  .signature-section {
+    padding: 60px 20px;
+    background: #f8f9fa;
+  }
+  
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6c757d;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+  }
+  
+  .product-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .product-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+  
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .product-icon {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    font-size: 32px;
+    background: white;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  
+  .product-card h3 {
+    padding: 20px 20px 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  
+  .product-card p {
+    padding: 0 20px 20px;
+    font-size: 14px;
+    color: #6c757d;
+  }
+  
+  .product-price {
+    display: block;
+    padding: 0 20px 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0a06ff;
+  }
+  
+  .signature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+  }
+  
+  .signature-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  
+  .signature-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+  }
+  
+  .signature-info {
+    padding: 24px;
+  }
+  
+  .signature-info h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+  
+  .signature-info p {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 16px;
+  }
+  
+  .order-button {
+    background: #0a06ff;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .order-button:hover {
+    background: #0804cc;
+    transform: translateX(4px);
+  }
+  
+  /* ══════════════ MAP SECTION ══════════════ */
+  .map-section {
+    padding: 60px 20px;
+  }
+  
+  .map-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  @media (min-width: 768px) {
+    .map-grid {
+      grid-template-columns: 1.5fr 1fr;
+    }
+  }
+  
+  .map-container {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  
+  .map-container iframe {
+    display: block;
+    min-height: 400px;
+  }
+  
+  .map-cta {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0a06ff;
+    color: white;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(10, 6, 255, 0.4);
+    transition: all 0.3s ease;
+  }
+  
+  .map-cta:hover {
+    background: #0804cc;
+    transform: translateX(-50%) translateY(-2px);
+  }
+  
+  .store-info-card {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  
+  .info-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6c757d;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  
+  .store-info-card h3 {
+    font-size: 24px;
+    font-weight: 900;
+    color: #0a06ff;
+    margin-bottom: 24px;
+  }
+  
+  .info-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .info-row:last-of-type {
+    border-bottom: none;
+  }
+  
+  .info-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  
+  .info-row strong {
+    display: block;
+    font-size: 14px;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  
+  .info-row p {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 2px;
+  }
+  
+  .navigate-button {
+    width: 100%;
+    background: #0a06ff;
+    color: white;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+  }
+  
+  .navigate-button:hover {
+    background: #0804cc;
+  }
+  
+  .map-footnote {
+    font-size: 12px;
+    color: #6c757d;
+    text-align: center;
+  }
+  
+  /* ══════════════ SOCIAL SECTION ══════════════ */
+  .social-section {
+    padding: 60px 20px;
+    background: #f8f9fa;
+  }
+  
+  .social-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+  
+  .social-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    height: 350px;
+  }
+  
+  .social-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .social-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    padding: 24px;
+    color: white;
+  }
+  
+  .social-quote {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  
+  /* ══════════════ FINAL CTA ══════════════ */
+  .final-cta-section {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #0a06ff, #0804cc);
+    color: white;
+    text-align: center;
+  }
+  
+  .final-cta-content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .cta-logo {
+    width: 120px;
+    margin-bottom: 24px;
+  }
+  
+  .cta-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  
+  .cta-title .blue-text {
+    color: #ffc107;
+  }
+  
+  .cta-subtitle {
+    font-size: 18px;
+    opacity: 0.9;
+    margin-bottom: 32px;
+  }
+  
+  .final-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .cta-button.large {
+    padding: 20px 32px;
+    font-size: 16px;
+  }
+  
+  /* ══════════════ STICKY FOOTER ══════════════ */
+  .sticky-footer-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.12);
+    padding: 16px 20px;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sticky-footer-bar.visible {
+    transform: translateY(0);
+  }
+  
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  
+  .footer-location {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .footer-location strong {
+    display: block;
+    font-size: 14px;
+    color: #1a1a1a;
+  }
+  
+  .footer-location small {
+    display: block;
+    font-size: 12px;
+    color: #6c757d;
+  }
+  
+  .footer-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  
+  .footer-button {
+    background: #0a06ff;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+  }
+  
+  .footer-button:hover {
+    background: #0804cc;
+  }
+  
+  .footer-button.secondary {
+    background: #f8f9fa;
+    color: #1a1a1a;
+    padding: 12px 16px;
+  }
+  
+  .footer-button.secondary:hover {
+    background: #e9ecef;
+  }
+  
+  /* ══════════════ RESPONSIVE ══════════════ */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+    
+    .section-title {
+      font-size: 2rem;
+    }
+    
+    .cta-title {
+      font-size: 2rem;
+    }
+    
+    .cta-buttons {
+      grid-template-columns: 1fr;
+    }
+    
+    .final-buttons {
+      grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+      grid-template-columns: 1fr;
+    }
+    
+    .footer-location strong,
+    .footer-location small {
+      font-size: 12px;
+    }
+    
+    .footer-button {
+      padding: 10px 16px;
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+(function() {
+  'use strict';
+  
+  // Google Maps directions link
+  const mapsQuery = {{ section.settings.maps_query | default: 'My Coffee Co, Building 14, DLF Cyber City, Gurgaon' | json }};
+  const storeLat = {{ section.settings.store_latitude | default: '28.4943' }};
+  const storeLng = {{ section.settings.store_longitude | default: '77.0868' }};
+  const storePhone = {{ section.settings.phone | default: '+919876543210' | json }};
+  
+  // Generate Google Maps URL
+  function getDirectionsURL() {
+    return `https://www.google.com/maps/dir/?api=1&destination=${storeLat},${storeLng}&destination_place_id=&travelmode=walking`;
+  }
+  
+  // Open Google Maps directions
+  function openDirections() {
+    window.open(getDirectionsURL(), '_blank');
+  }
+  
+  // Call store
+  function callStore() {
+    window.location.href = `tel:${storePhone}`;
+  }
+  
+  // Attach click handlers
+  document.querySelectorAll('#hero-directions, #main-directions, #map-directions, #store-info-directions, #final-directions, #sticky-directions').forEach(btn => {
+    btn.addEventListener('click', openDirections);
+  });
+  
+  document.querySelectorAll('#call-store, #sticky-call').forEach(btn => {
+    btn.addEventListener('click', callStore);
+  });
+  
+  // Sticky footer bar on scroll
+  const stickyFooter = document.getElementById('sticky-footer');
+  let scrollTimeout;
+  
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    
+    if (window.scrollY > 500) {
+      stickyFooter.classList.add('visible');
+    }
+    
+    scrollTimeout = setTimeout(() => {
+      if (window.scrollY < 300) {
+        stickyFooter.classList.remove('visible');
+      }
+    }, 100);
+  });
+  
+  // Analytics tracking (if GTM/GA is installed)
+  function trackEvent(action, label) {
+    if (typeof gtag !== 'undefined') {
+      gtag('event', action, {
+        'event_category': 'Ad Landing Page',
+        'event_label': label
+      });
+    }
+    console.log('[Analytics]', action, label);
+  }
+  
+  // Track CTA clicks
+  document.querySelectorAll('[id$="-directions"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      trackEvent('click', 'Get Directions - ' + btn.id);
+    });
+  });
+  
+  document.querySelectorAll('[id$="-call"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      trackEvent('click', 'Call Store - ' + btn.id);
+    });
+  });
+  
+  // Track scroll depth
+  let scrollDepths = [25, 50, 75, 100];
+  let trackedDepths = [];
+  
+  window.addEventListener('scroll', () => {
+    const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    
+    scrollDepths.forEach(depth => {
+      if (scrollPercent >= depth && !trackedDepths.includes(depth)) {
+        trackedDepths.push(depth);
+        trackEvent('scroll', `Scroll Depth ${depth}%`);
+      }
+    });
+  });
+  
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Ad Landing - DLF",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero Section"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Banner Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Brand Logo"
+    },
+    {
+      "type": "text",
+      "id": "building_name",
+      "label": "Building Name",
+      "default": "Building 14 • DLF Cyber City"
+    },
+    {
+      "type": "text",
+      "id": "location_subtitle",
+      "label": "Location Subtitle",
+      "default": "Opposite Concentrix Recruitment Center"
+    },
+    {
+      "type": "text",
+      "id": "hero_line1",
+      "label": "Hero Line 1",
+      "default": "Running between meetings?"
+    },
+    {
+      "type": "text",
+      "id": "hero_line2",
+      "label": "Hero Line 2",
+      "default": "Fresh specialty coffee."
+    },
+    {
+      "type": "text",
+      "id": "hero_line3",
+      "label": "Hero Line 3",
+      "default": "Just outside Building 14."
+    },
+    {
+      "type": "text",
+      "id": "hero_line4",
+      "label": "Hero Line 4",
+      "default": "Walk over in two minutes."
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Brand Tagline",
+      "default": "Small Sips. Big Moments."
+    },
+    {
+      "type": "text",
+      "id": "rating",
+      "label": "Rating",
+      "default": "4.8"
+    },
+    {
+      "type": "header",
+      "content": "Location Section"
+    },
+    {
+      "type": "image_picker",
+      "id": "interior_image",
+      "label": "Interior Image"
+    },
+    {
+      "type": "text",
+      "id": "location_short",
+      "label": "Short Location Name",
+      "default": "MyCoffee.co, DLF CYBER CITY"
+    },
+    {
+      "type": "textarea",
+      "id": "location_description",
+      "label": "Location Description",
+      "default": "Specialty coffee crafted from premium Indian Arabica beans—inside your building. Just take the lift down."
+    },
+    {
+      "type": "text",
+      "id": "menu_link",
+      "label": "Menu Page Link",
+      "default": "/pages/menu"
+    },
+    {
+      "type": "header",
+      "content": "Map Settings"
+    },
+    {
+      "type": "text",
+      "id": "google_maps_api_key",
+      "label": "Google Maps API Key",
+      "info": "Get from Google Cloud Console"
+    },
+    {
+      "type": "text",
+      "id": "map_query",
+      "label": "Map Search Query",
+      "default": "My Coffee Co DLF Cyber City Gurgaon"
+    },
+    {
+      "type": "text",
+      "id": "maps_query",
+      "label": "Directions Search Query",
+      "default": "My Coffee Co, Building 14, DLF Cyber City, Gurgaon"
+    },
+    {
+      "type": "text",
+      "id": "store_latitude",
+      "label": "Store Latitude",
+      "default": "28.4943"
+    },
+    {
+      "type": "text",
+      "id": "store_longitude",
+      "label": "Store Longitude",
+      "default": "77.0868"
+    },
+    {
+      "type": "text",
+      "id": "full_address",
+      "label": "Full Address",
+      "default": "Sector 24, Gurugram, Haryana 122022"
+    },
+    {
+      "type": "text",
+      "id": "weekday_hours",
+      "label": "Weekday Hours",
+      "default": "Monday - Friday: 8 AM - 10 PM"
+    },
+    {
+      "type": "text",
+      "id": "weekend_hours",
+      "label": "Weekend Hours",
+      "default": "Saturday: 9 AM - 6 PM"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Store Phone",
+      "default": "+91 98765 43210"
+    },
+    {
+      "type": "text",
+      "id": "distance",
+      "label": "Distance Description",
+      "default": "2 min walk from your desk"
+    },
+    {
+      "type": "header",
+      "content": "Final CTA"
+    },
+    {
+      "type": "image_picker",
+      "id": "cta_image",
+      "label": "CTA Logo/Image"
+    },
+    {
+      "type": "text",
+      "id": "cta_subtitle",
+      "label": "CTA Subtitle",
+      "default": "Skip the queue. Skip the detour. Just great coffee."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "product_image",
+          "label": "Product Image"
+        },
+        {
+          "type": "text",
+          "id": "product_icon",
+          "label": "Product Icon (Emoji)",
+          "default": "☕"
+        },
+        {
+          "type": "text",
+          "id": "product_name",
+          "label": "Product Name"
+        },
+        {
+          "type": "textarea",
+          "id": "product_description",
+          "label": "Product Description"
+        },
+        {
+          "type": "text",
+          "id": "product_price",
+          "label": "Price"
+        }
+      ]
+    },
+    {
+      "type": "signature",
+      "name": "Signature Drink",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "signature_image",
+          "label": "Drink Image"
+        },
+        {
+          "type": "text",
+          "id": "signature_name",
+          "label": "Drink Name"
+        },
+        {
+          "type": "textarea",
+          "id": "signature_description",
+          "label": "Description"
+        }
+      ]
+    },
+    {
+      "type": "testimonial",
+      "name": "Testimonial/Photo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "testimonial_image",
+          "label": "Photo"
+        },
+        {
+          "type": "text",
+          "id": "testimonial_quote",
+          "label": "Quote"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ad Landing - DLF"
+    }
+  ]
+}
+{% endschema %}
