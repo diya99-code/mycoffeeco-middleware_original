@@ -29,6 +29,17 @@ router.get('/locations/:city/:area/:building', (req, res) => {
 });
 
 /**
+ * 4-Level Deep Location URL via App Proxy
+ * URL: /a/locations/gurgaon/dlf-cyber-city/building-14
+ * Redirects to: /pages/ad-landing-page
+ */
+router.get('/a/locations/:city/:area/:building', (req, res) => {
+  const shopifyPageUrl = `${SHOPIFY_DOMAIN}/pages/ad-landing-page`;
+  console.log(`[Locations] Building landing page (via App Proxy) → ${shopifyPageUrl}`);
+  res.redirect(301, shopifyPageUrl);
+});
+
+/**
  * 3-Level Location URL
  * URL: /locations/gurgaon/dlf-cyber-city
  * Redirects to: /pages/locations-gurgaon-dlf-cyber-city
