@@ -63,7 +63,8 @@ app.use("/shopify",      shopifyRoutes);
 app.use("/auth",         authRoutes);
 app.use("/direct-order", directOrderRoutes);
 app.use("/api/referrals", referralRoutes);
-app.use("/",             locationRoutes); // Location landing pages with nested URLs
+// Location routes MUST be last - they have a catch-all route for App Proxy
+app.use("/",             locationRoutes);
 
 // Global error handler — catches any unhandled errors from routes/controllers
 app.use((err, _req, res, _next) => {

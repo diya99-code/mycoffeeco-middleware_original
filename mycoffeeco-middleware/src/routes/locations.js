@@ -18,24 +18,36 @@ const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_URL || 'https://mycoffeeco.com'
 console.log('[Locations Router] Loaded. SHOPIFY_DOMAIN:', SHOPIFY_DOMAIN);
 
 /**
- * 4-Level Deep Location URL
+ * App Proxy Route - Shopify strips /a/locations prefix
+ * When user visits: /a/locations/gurgaon/dlf-cyber-city/building-14
+ * Shopify sends to proxy: /gurgaon/dlf-cyber-city/building-14
+ */
+router.get('/:param1/:param2/:param3', (req, res, next) => {
+  const { param1, param2, param3 } = req.params;
+  
+  // Only handle if it looks like a location path (lowercase with hyphens)
+  const isLocationPath = /^[a-z0-9-]+$/.test(param1) && 
+                         /^[a-z0-9-]+$/.test(param2) && 
+                         /^[a-z0-9-]+$/.test(param3);
+  
+  if (isLocationPath) {
+    const shopifyPageUrl = `${SHOPIFY_DOMAIN}/pages/ad-landing-page`;
+    console.log(`[Locations] App Proxy → ${shopifyPageUrl} (path: ${param1}/${param2}/${param3})`);
+    return res.redirect(301, shopifyPageUrl);
+  }
+  
+  // Not a location path, pass to next handler (404)
+  next();
+});
+
+/**
+ * Direct Location URL (not through App Proxy)
  * URL: /locations/gurgaon/dlf-cyber-city/building-14
  * Redirects to: /pages/ad-landing-page
  */
 router.get('/locations/:city/:area/:building', (req, res) => {
   const shopifyPageUrl = `${SHOPIFY_DOMAIN}/pages/ad-landing-page`;
-  console.log(`[Locations] Building landing page → ${shopifyPageUrl}`);
-  res.redirect(301, shopifyPageUrl);
-});
-
-/**
- * 4-Level Deep Location URL via App Proxy
- * URL: /a/locations/gurgaon/dlf-cyber-city/building-14
- * Redirects to: /pages/ad-landing-page
- */
-router.get('/a/locations/:city/:area/:building', (req, res) => {
-  const shopifyPageUrl = `${SHOPIFY_DOMAIN}/pages/ad-landing-page`;
-  console.log(`[Locations] Building landing page (via App Proxy) → ${shopifyPageUrl}`);
+  console.log(`[Locations] Direct route → ${shopifyPageUrl}`);
   res.redirect(301, shopifyPageUrl);
 });
 
