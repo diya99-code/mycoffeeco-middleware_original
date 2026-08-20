@@ -15,6 +15,8 @@ const router = express.Router();
 // Get Shopify domain from environment or use default
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_URL || 'https://mycoffeeco.com';
 
+console.log('[Locations Router] Loaded. SHOPIFY_DOMAIN:', SHOPIFY_DOMAIN);
+
 /**
  * 4-Level Deep Location URL
  * URL: /locations/gurgaon/dlf-cyber-city/building-14

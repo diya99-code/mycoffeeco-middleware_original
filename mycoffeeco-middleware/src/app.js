@@ -40,6 +40,16 @@ app.get("/", (_req, res) => {
     res.send("Middleware Running");
 });
 
+// Debug endpoint to check if location routes are loaded
+app.get("/debug/routes", (_req, res) => {
+    res.json({
+        message: "Route debugging",
+        locationRoutesLoaded: typeof locationRoutes !== 'undefined',
+        shopifyStoreUrl: process.env.SHOPIFY_STORE_URL || 'NOT SET',
+        testUrl: '/locations/gurgaon/dlf-cyber-city/building-14'
+    });
+});
+
 // Keep-alive endpoint for cron pings to prevent Render free tier spin-down
 app.get("/ping", (_req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
