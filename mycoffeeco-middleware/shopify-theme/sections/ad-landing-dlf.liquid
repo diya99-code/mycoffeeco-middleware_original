@@ -3,7 +3,7 @@
   
   This page is specifically designed for Meta and Google Ads campaigns.
   Features:
-  - Hero banner with location info
+  - Hero banner with location info (separate images for mobile & desktop)
   - Get Directions CTA with working map
   - Product showcases
   - Store information and hours
@@ -18,205 +18,259 @@
   
   {%- comment -%} ══════════════ HERO SECTION ══════════════ {%- endcomment -%}
   <section class="hero-section">
-    <div class="hero-container">
-      <div class="hero-badge">
-        <span class="walk-icon">🚶</span>
-        <span class="badge-text">2 MIN WALK</span>
-      </div>
-      
-      <h1 class="hero-title">
-        Your Next<br>
-        Coffee Is<br>
-        <span class="highlight">2 Minutes</span><br>
-        Away.
-      </h1>
-      
-      <div class="location-card">
-        <span class="pin-icon">📍</span>
-        <div class="location-text">
-          <strong>{{ section.settings.building_name | default: 'Building 14 • DLF Cyber City' }}</strong>
-          <p>{{ section.settings.location_subtitle | default: 'Opposite Concentrix Recruitment Center' }}</p>
-        </div>
-      </div>
-      
-      <div class="hero-copy">
-        <p>{{ section.settings.hero_line1 | default: 'Running between meetings?' }}</p>
-        <p>{{ section.settings.hero_line2 | default: 'Fresh specialty coffee.' }}</p>
-        <p>{{ section.settings.hero_line3 | default: 'Just outside Building 14.' }}</p>
-        <p>{{ section.settings.hero_line4 | default: 'Walk over in two minutes.' }}</p>
-      </div>
-      
-      <div class="features-row">
-        <div class="feature-item">
-          <div class="feature-icon">🚶</div>
-          <span>2 MIN WALK</span>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">☕</div>
-          <span>FRESH DAILY</span>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">⚡</div>
-          <span>FAST PICKUP</span>
-        </div>
-      </div>
-      
-      <div class="brand-footer">
-        <div class="brand-logo">
-          {%- if section.settings.logo != blank -%}
-            <img src="{{ section.settings.logo | image_url: width: 200 }}" alt="My Coffee Co.">
-          {%- else -%}
-            <span class="logo-icon">🦌</span>
-            <span class="logo-text">MY COFFEE CO.</span>
-          {%- endif -%}
-        </div>
-        <p class="brand-tagline">{{ section.settings.tagline | default: 'Small Sips. Big Moments.' }}</p>
-      </div>
-      
-      <button class="cta-button primary" id="hero-directions" type="button">
-        Get Directions →
-      </button>
-      
-      <div class="hero-footer-bar">
-        <div class="footer-item">
-          <span class="star-icon">⭐</span>
-          <span>{{ section.settings.rating | default: '4.8' }} Rated</span>
-        </div>
-        <div class="footer-item">
-          <span class="bean-icon">☕</span>
-          <span>Premium Specialty Arabica</span>
-        </div>
-        <div class="footer-item">
-          <span class="bolt-icon">⚡</span>
-          <span>Grab & Go</span>
-        </div>
-      </div>
-      
-      {%- if section.settings.hero_image != blank -%}
-      <div class="hero-image">
-        <img src="{{ section.settings.hero_image | image_url: width: 800 }}" alt="My Coffee Co. - DLF Cyber City" loading="eager">
-      </div>
-      {%- endif -%}
-    </div>
-  </section>
-  
-  {%- comment -%} ══════════════ LOCATION SECTION ══════════════ {%- endcomment -%}
-  <section class="location-section">
-    <div class="container">
-      <div class="location-header">
-        <span class="logo-mini">☕ MY COFFEE CO.</span>
-        <button class="open-now-badge" type="button">
-          <span class="open-dot"></span>
-          Open Now
-        </button>
-      </div>
-      
-      <div class="location-info">
-        <span class="location-pin">📍</span>
-        <span class="location-name">{{ section.settings.location_short | default: 'MyCoffee.co, DLF CYBER CITY' }}</span>
-      </div>
-      
-      <h2 class="section-title">
-        You're already here.<br>
-        <span class="blue-text">Great coffee is downstairs.</span>
-      </h2>
-      
-      <p class="section-description">
-        {{ section.settings.location_description | default: 'Specialty coffee crafted from premium Indian Arabica beans—inside your building. Just take the lift down.' }}
-      </p>
-      
-      <div class="quick-actions">
-        <div class="action-card">
-          <span class="action-icon">🚶</span>
-          <strong>2 min walk</strong>
-          <small>from your desk</small>
-        </div>
-        <div class="action-card">
-          <span class="action-icon">⏰</span>
-          <strong>Open Now</strong>
-          <small>until 10 PM</small>
-        </div>
-        <div class="action-card">
-          <span class="action-icon">☕</span>
-          <strong>Specialty Arabica</strong>
-          <small>Premium coffee</small>
-        </div>
-        <div class="action-card">
-          <span class="action-icon">⭐</span>
-          <strong>Premium Taste</strong>
-          <small>Crafted for you</small>
-        </div>
-      </div>
-      
-      <div class="cta-buttons">
-        <button class="cta-button primary" id="main-directions" type="button">
-          <span class="nav-icon">🧭</span>
-          Get Directions
-          <small>Opens in Google Maps</small>
-        </button>
-        <a href="{{ section.settings.menu_link | default: '/pages/menu' }}" class="cta-button secondary">
-          <span class="menu-icon">📋</span>
-          View Menu
+    {%- if section.settings.hero_image_mobile != blank or section.settings.hero_image_desktop != blank -%}
+      <div class="hero-image-container">
+        
+        {%- comment -%} Mobile Image {%- endcomment -%}
+        {%- if section.settings.hero_image_mobile != blank -%}
+          <img src="{{ section.settings.hero_image_mobile | image_url: width: 1200 }}" 
+               alt="My Coffee Co. - Your next coffee is already downstairs" 
+               class="hero-full-image hero-mobile-only"
+               loading="eager">
+        {%- endif -%}
+        
+        {%- comment -%} Desktop Image {%- endcomment -%}
+        {%- if section.settings.hero_image_desktop != blank -%}
+          <img src="{{ section.settings.hero_image_desktop | image_url: width: 2400 }}" 
+               alt="My Coffee Co. - Your next coffee is already downstairs" 
+               class="hero-full-image hero-desktop-only"
+               loading="eager">
+        {%- endif -%}
+        
+        {%- comment -%} Clickable button overlays - "Get Directions" and "Call Store" {%- endcomment -%}
+        <a href="https://www.google.com/maps/dir/?api=1&destination={{ section.settings.store_latitude | default: '28.4943' }},{{ section.settings.store_longitude | default: '77.0868' }}&travelmode=walking" 
+           target="_blank"
+           class="hero-btn-overlay hero-btn-directions" 
+           id="hero-directions-btn"
+           aria-label="Get Directions">
+          <span class="sr-only">Get Directions</span>
+        </a>
+        
+        <a href="tel:{{ section.settings.phone | default: '+919876543210' }}" 
+           class="hero-btn-overlay hero-btn-call" 
+           id="hero-call-btn"
+           aria-label="Call Store">
+          <span class="sr-only">Call Store</span>
         </a>
       </div>
-      
-      {%- if section.settings.interior_image != blank -%}
-      <div class="location-image">
-        <img src="{{ section.settings.interior_image | image_url: width: 800 }}" alt="Inside DLF Cyber City Store" loading="lazy">
+    {%- else -%}
+      <div class="hero-placeholder">
+        <p>📷 Upload your hero banners in the theme customizer</p>
+        <p><strong>Mobile Banner:</strong> Upload vertical/square banner for mobile (recommended: 800x1200px)</p>
+        <p><strong>Desktop Banner:</strong> Upload horizontal banner for desktop (recommended: 2000x400px)</p>
+        <p><em>Both images: "Your next coffee is already downstairs"</em></p>
       </div>
-      {%- endif -%}
+    {%- endif -%}
+  </section>
+  
+  {%- comment -%} ══════════════ FEATURE CARDS (After Hero) ══════════════ {%- endcomment -%}
+  <section class="features-strip">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-card-icon">🏢</div>
+          <h3>Inside DLF</h3>
+          <p>Conveniently located inside your building</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">⏱️</div>
+          <h3>Ready in Minutes</h3>
+          <p>Freshly brewed, served fast</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">☕</div>
+          <h3>Specialty Arabica</h3>
+          <p>Premium Indian Arabica beans</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">⭐</div>
+          <h3>Premium Taste</h3>
+          <p>Crafted for a richer, smoother experience</p>
+        </div>
+      </div>
     </div>
   </section>
   
-  {%- comment -%} ══════════════ PRODUCT SHOWCASE ══════════════ {%- endcomment -%}
+  {%- comment -%} ══════════════ PRODUCT SHOWCASE (3 fixed cards, no blocks needed) ══════════════ {%- endcomment -%}
   <section class="products-section">
     <div class="container">
       <p class="section-label">WHY PEOPLE WALK HERE</p>
       <h2 class="section-title">Coffee that fits your day.</h2>
       
       <div class="product-grid">
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'product' -%}
-          <div class="product-card" {{ block.shopify_attributes }}>
-            {%- if block.settings.product_image != blank -%}
-            <div class="product-image">
-              <img src="{{ block.settings.product_image | image_url: width: 400 }}" alt="{{ block.settings.product_name }}" loading="lazy">
-              <span class="product-icon">{{ block.settings.product_icon | default: '☕' }}</span>
-            </div>
-            {%- endif -%}
-            <h3>{{ block.settings.product_name }}</h3>
-            <p>{{ block.settings.product_description }}</p>
-            {%- if block.settings.product_price != blank -%}
-            <span class="product-price">{{ block.settings.product_price }}</span>
-            {%- endif -%}
+
+        {%- comment -%} CARD 1 {%- endcomment -%}
+        <div class="product-card">
+          {%- if section.settings.card1_image != blank -%}
+          <div class="product-image">
+            <img src="{{ section.settings.card1_image | image_url: width: 400 }}" alt="{{ section.settings.card1_name }}" loading="lazy">
+            <span class="product-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#0a06ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="13" cy="4" r="2"/>
+                <path d="M10.5 21l1-7-2-2 1-5"/>
+                <path d="M13.5 6l2 3-1 3 3 2"/>
+                <path d="M9 9l3-1"/>
+                <path d="M14.5 21l-2-6"/>
+              </svg>
+            </span>
+          </div>
+          {%- else -%}
+          <div class="product-image product-image-placeholder">
+            <span class="placeholder-text">Upload photo: person holding cup</span>
+            <span class="product-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#0a06ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="13" cy="4" r="2"/>
+                <path d="M10.5 21l1-7-2-2 1-5"/>
+                <path d="M13.5 6l2 3-1 3 3 2"/>
+                <path d="M9 9l3-1"/>
+                <path d="M14.5 21l-2-6"/>
+              </svg>
+            </span>
           </div>
           {%- endif -%}
-        {%- endfor -%}
+          <h3>{{ section.settings.card1_name | default: 'No Detour' }}</h3>
+          <p>{{ section.settings.card1_description | default: 'Grab your coffee without leaving work.' }}</p>
+        </div>
+
+        {%- comment -%} CARD 2 {%- endcomment -%}
+        <div class="product-card">
+          {%- if section.settings.card2_image != blank -%}
+          <div class="product-image">
+            <img src="{{ section.settings.card2_image | image_url: width: 400 }}" alt="{{ section.settings.card2_name }}" loading="lazy">
+            <span class="product-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#0a06ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+                <line x1="6" y1="2" x2="6" y2="4"/>
+                <line x1="10" y1="2" x2="10" y2="4"/>
+                <line x1="14" y1="2" x2="14" y2="4"/>
+              </svg>
+            </span>
+          </div>
+          {%- else -%}
+          <div class="product-image product-image-placeholder">
+            <span class="placeholder-text">Upload photo: espresso pour</span>
+            <span class="product-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#0a06ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+                <line x1="6" y1="2" x2="6" y2="4"/>
+                <line x1="10" y1="2" x2="10" y2="4"/>
+                <line x1="14" y1="2" x2="14" y2="4"/>
+              </svg>
+            </span>
+          </div>
+          {%- endif -%}
+          <h3>{{ section.settings.card2_name | default: 'Made Fresh' }}</h3>
+          <p>{{ section.settings.card2_description | default: 'Every cup prepared to order.' }}</p>
+        </div>
+
+        {%- comment -%} CARD 3 {%- endcomment -%}
+        <div class="product-card">
+          {%- if section.settings.card3_image != blank -%}
+          <div class="product-image">
+            <img src="{{ section.settings.card3_image | image_url: width: 400 }}" alt="{{ section.settings.card3_name }}" loading="lazy">
+            <span class="product-icon">
+              <svg viewBox="0 0 24 24" fill="#0a06ff" stroke="#0a06ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              </svg>
+            </span>
+          </div>
+          {%- else -%}
+          <div class="product-image product-image-placeholder">
+            <span class="placeholder-text">Upload photo: laptop + mug</span>
+            <span class="product-icon">
+              <svg viewBox="0 0 24 24" fill="#0a06ff" stroke="#0a06ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              </svg>
+            </span>
+          </div>
+          {%- endif -%}
+          <h3>{{ section.settings.card3_name | default: 'Worth the Pause' }}</h3>
+          <p>{{ section.settings.card3_description | default: 'Small Sips. Big Moments.' }}</p>
+        </div>
+
       </div>
     </div>
   </section>
   
-  {%- comment -%} ══════════════ SIGNATURE DRINKS ══════════════ {%- endcomment -%}
+  {%- comment -%} ══════════════ SIGNATURE DRINKS (3 fixed cards, no blocks needed) ══════════════ {%- endcomment -%}
   <section class="signature-section">
     <div class="container">
       <p class="section-label">SIGNATURE DRINKS</p>
       <h2 class="section-title">Crafted for the moments that matter.</h2>
       
       <div class="signature-grid">
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'signature' -%}
-          <div class="signature-card" {{ block.shopify_attributes }}>
-            {%- if block.settings.signature_image != blank -%}
-            <img src="{{ block.settings.signature_image | image_url: width: 500 }}" alt="{{ block.settings.signature_name }}" loading="lazy">
-            {%- endif -%}
-            <div class="signature-info">
-              <h3>{{ block.settings.signature_name }}</h3>
-              <p>{{ block.settings.signature_description }}</p>
-              <button class="order-button" type="button">Order Now →</button>
-            </div>
+
+        {%- comment -%} CARD 1 {%- endcomment -%}
+        <div class="signature-card">
+          {%- if section.settings.sig1_image != blank -%}
+          <img src="{{ section.settings.sig1_image | image_url: width: 500 }}" alt="{{ section.settings.sig1_name }}" loading="lazy">
+          {%- else -%}
+          <div class="signature-image-placeholder">
+            <span class="placeholder-text">Upload photo: Flat White</span>
           </div>
           {%- endif -%}
-        {%- endfor -%}
+          <div class="signature-info">
+            <div class="signature-text">
+              <h3>{{ section.settings.sig1_name | default: 'Flat White' }}</h3>
+              <p>{{ section.settings.sig1_description | default: 'Silky microfoam with a rich, smooth finish.' }}</p>
+            </div>
+            <button class="order-button" type="button" aria-label="Order {{ section.settings.sig1_name | default: 'Flat White' }}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {%- comment -%} CARD 2 {%- endcomment -%}
+        <div class="signature-card">
+          {%- if section.settings.sig2_image != blank -%}
+          <img src="{{ section.settings.sig2_image | image_url: width: 500 }}" alt="{{ section.settings.sig2_name }}" loading="lazy">
+          {%- else -%}
+          <div class="signature-image-placeholder">
+            <span class="placeholder-text">Upload photo: Iced Spanish Latte</span>
+          </div>
+          {%- endif -%}
+          <div class="signature-info">
+            <div class="signature-text">
+              <h3>{{ section.settings.sig2_name | default: 'Iced Spanish Latte' }}</h3>
+              <p>{{ section.settings.sig2_description | default: 'Sweet, creamy & bold. Perfect for your afternoon.' }}</p>
+            </div>
+            <button class="order-button" type="button" aria-label="Order {{ section.settings.sig2_name | default: 'Iced Spanish Latte' }}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {%- comment -%} CARD 3 {%- endcomment -%}
+        <div class="signature-card">
+          {%- if section.settings.sig3_image != blank -%}
+          <img src="{{ section.settings.sig3_image | image_url: width: 500 }}" alt="{{ section.settings.sig3_name }}" loading="lazy">
+          {%- else -%}
+          <div class="signature-image-placeholder">
+            <span class="placeholder-text">Upload photo: Cold Brew</span>
+          </div>
+          {%- endif -%}
+          <div class="signature-info">
+            <div class="signature-text">
+              <h3>{{ section.settings.sig3_name | default: 'Cold Brew' }}</h3>
+              <p>{{ section.settings.sig3_description | default: 'Smooth. Bold. Refreshingly clean.' }}</p>
+            </div>
+            <button class="order-button" type="button" aria-label="Order {{ section.settings.sig3_name | default: 'Cold Brew' }}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -279,50 +333,94 @@
     </div>
   </section>
   
-  {%- comment -%} ══════════════ SOCIAL PROOF ══════════════ {%- endcomment -%}
+  {%- comment -%} ══════════════ SOCIAL PROOF (3 fixed cards, no blocks needed) ══════════════ {%- endcomment -%}
   <section class="social-section">
     <div class="container">
       <p class="section-label">REAL MOMENTS. REAL PEOPLE.</p>
       
       <div class="social-grid">
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'testimonial' -%}
-          <div class="social-card" {{ block.shopify_attributes }}>
-            {%- if block.settings.testimonial_image != blank -%}
-            <img src="{{ block.settings.testimonial_image | image_url: width: 400 }}" alt="{{ block.settings.testimonial_quote }}" loading="lazy">
-            {%- endif -%}
-            <div class="social-overlay">
-              <p class="social-quote">"{{ block.settings.testimonial_quote }}"</p>
-            </div>
+
+        {%- comment -%} CARD 1 {%- endcomment -%}
+        <div class="social-card">
+          {%- if section.settings.social1_image != blank -%}
+          <img src="{{ section.settings.social1_image | image_url: width: 400 }}" alt="{{ section.settings.social1_quote }}" loading="lazy">
+          {%- else -%}
+          <div class="social-image-placeholder">
+            <span class="placeholder-text">Upload photo: morning coffee</span>
           </div>
           {%- endif -%}
-        {%- endfor -%}
+          <div class="social-overlay">
+            <p class="social-quote">"{{ section.settings.social1_quote | default: 'Morning ritual before stand-up.' }}"</p>
+          </div>
+        </div>
+
+        {%- comment -%} CARD 2 {%- endcomment -%}
+        <div class="social-card">
+          {%- if section.settings.social2_image != blank -%}
+          <img src="{{ section.settings.social2_image | image_url: width: 400 }}" alt="{{ section.settings.social2_quote }}" loading="lazy">
+          {%- else -%}
+          <div class="social-image-placeholder">
+            <span class="placeholder-text">Upload photo: afternoon coffee</span>
+          </div>
+          {%- endif -%}
+          <div class="social-overlay">
+            <p class="social-quote">"{{ section.settings.social2_quote | default: 'Afternoon reset.' }}"</p>
+          </div>
+        </div>
+
+        {%- comment -%} CARD 3 {%- endcomment -%}
+        <div class="social-card">
+          {%- if section.settings.social3_image != blank -%}
+          <img src="{{ section.settings.social3_image | image_url: width: 400 }}" alt="{{ section.settings.social3_quote }}" loading="lazy">
+          {%- else -%}
+          <div class="social-image-placeholder">
+            <span class="placeholder-text">Upload photo: coffee with coworker</span>
+          </div>
+          {%- endif -%}
+          <div class="social-overlay">
+            <p class="social-quote">"{{ section.settings.social3_quote | default: 'Coffee worth leaving your desk for.' }}"</p>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
   
   {%- comment -%} ══════════════ FINAL CTA ══════════════ {%- endcomment -%}
   <section class="final-cta-section">
-    <div class="container">
-      <div class="final-cta-content">
-        {%- if section.settings.cta_image != blank -%}
-        <img src="{{ section.settings.cta_image | image_url: width: 200 }}" alt="My Coffee Co." class="cta-logo" loading="lazy">
+    <div class="final-cta-grid">
+      <div class="final-cta-image">
+        {%- if section.settings.final_cta_image != blank -%}
+        <img src="{{ section.settings.final_cta_image | image_url: width: 600 }}" alt="My Coffee Co. cup" loading="lazy">
+        {%- else -%}
+        <div class="final-cta-image-placeholder">
+          <span class="placeholder-text">Upload photo: hand holding coffee cup</span>
+        </div>
         {%- endif -%}
-        
+      </div>
+
+      <div class="final-cta-content">
         <h2 class="cta-title">
-          Your next coffee is<br>
-          <span class="blue-text">already downstairs.</span>
+          {{ section.settings.cta_title_line1 | default: 'Your next coffee is' }}<br>
+          {{ section.settings.cta_title_line2_prefix | default: 'already' }} <span class="blue-text">{{ section.settings.cta_title_line2_highlight | default: 'downstairs' }}</span>.
         </h2>
         <p class="cta-subtitle">{{ section.settings.cta_subtitle | default: 'Skip the queue. Skip the detour. Just great coffee.' }}</p>
-        
-        <div class="final-buttons">
-          <button class="cta-button primary large" id="final-directions" type="button">
-            <span class="nav-icon">🧭</span> Get Directions
-          </button>
-          <button class="cta-button secondary large" id="call-store" type="button">
-            <span class="phone-icon">📞</span> Call Store
-          </button>
-        </div>
+      </div>
+
+      <div class="final-buttons">
+        <button class="cta-button primary" id="final-directions" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          Get Directions
+        </button>
+        <button class="cta-button secondary" id="call-store" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0a06ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+          Call Store
+        </button>
       </div>
     </div>
   </section>
@@ -371,227 +469,263 @@
     padding: 0 20px;
   }
   
-  /* ══════════════ HERO SECTION ══════════════ */
+  /* ══════════════ HERO SECTION (Horizontal Banner) ══════════════ */
   .hero-section {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 40px 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .hero-container {
-    max-width: 480px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 2;
-  }
-  
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #ffc107;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-  
-  .walk-icon {
-    font-size: 18px;
-  }
-  
-  .hero-title {
-    font-size: 3rem;
-    font-weight: 900;
-    line-height: 1.1;
-    color: #0a06ff;
-    margin-bottom: 24px;
-  }
-  
-  .hero-title .highlight {
-    background: linear-gradient(135deg, #ffc107, #ff9800);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-decoration: underline;
-    text-decoration-color: #ffc107;
-    text-decoration-thickness: 4px;
-    text-underline-offset: 4px;
-  }
-  
-  .location-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    background: white;
-    padding: 16px;
-    border-radius: 12px;
-    border: 2px solid #e9ecef;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
-  
-  .pin-icon {
-    font-size: 24px;
-    flex-shrink: 0;
-  }
-  
-  .location-text strong {
-    display: block;
-    font-size: 16px;
-    color: #1a1a1a;
-    margin-bottom: 4px;
-  }
-  
-  .location-text p {
-    font-size: 14px;
-    color: #6c757d;
-  }
-  
-  .hero-copy {
-    margin-bottom: 24px;
-  }
-  
-  .hero-copy p {
-    font-size: 16px;
-    color: #495057;
-    margin-bottom: 4px;
-  }
-  
-  .features-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-  
-  .feature-item {
-    text-align: center;
-  }
-  
-  .feature-icon {
-    font-size: 32px;
-    margin-bottom: 8px;
-  }
-  
-  .feature-item span {
-    display: block;
-    font-size: 11px;
-    font-weight: 700;
-    color: #495057;
-    letter-spacing: 0.5px;
-  }
-  
-  .brand-footer {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  
-  .brand-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-  
-  .logo-icon {
-    font-size: 32px;
-  }
-  
-  .logo-text {
-    font-size: 18px;
-    font-weight: 900;
-    color: #0a06ff;
-  }
-  
-  .brand-tagline {
-    font-size: 14px;
-    color: #6c757d;
-  }
-  
-  .cta-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
-    padding: 16px 24px;
-    font-size: 18px;
-    font-weight: 700;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    gap: 8px;
-  }
-  
-  .cta-button.primary {
-    background: linear-gradient(135deg, #ffc107, #ff9800);
-    color: #1a1a1a;
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
-  }
-  
-  .cta-button.primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(255, 193, 7, 0.5);
-  }
-  
-  .cta-button.secondary {
-    background: white;
-    color: #0a06ff;
-    border: 2px solid #0a06ff;
-  }
-  
-  .cta-button.secondary:hover {
-    background: #0a06ff;
-    color: white;
-  }
-  
-  .cta-button small {
-    display: block;
-    font-size: 12px;
-    font-weight: 400;
-    opacity: 0.8;
-  }
-  
-  .hero-footer-bar {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    background: #0a06ff;
-    padding: 16px;
-    border-radius: 12px;
-    margin-top: 24px;
-    color: white;
-  }
-  
-  .footer-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    font-size: 12px;
-    gap: 4px;
-  }
-  
-  .footer-item span:first-child {
-    font-size: 20px;
-  }
-  
-  .hero-image {
-    margin-top: 32px;
-    border-radius: 16px;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #fff;
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   }
   
-  .hero-image img {
+  .hero-image-container {
+    position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: block;
+    line-height: 0;
+  }
+  
+  .hero-full-image {
     width: 100%;
     height: auto;
     display: block;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+  }
+  
+  /* Mobile/Desktop Image Switching */
+  .hero-mobile-only {
+    display: block;
+  }
+  
+  .hero-desktop-only {
+    display: none;
+  }
+  
+  @media (min-width: 769px) {
+    .hero-mobile-only {
+      display: none;
+    }
+    
+    .hero-desktop-only {
+      display: block;
+    }
+  }
+  
+  /* Clickable button overlays - "Get Directions" (blue) and "Call Store" (white) */
+  .hero-btn-overlay {
+    position: absolute;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+  
+  .hero-btn-overlay:hover {
+    opacity: 0.9;
+  }
+  
+  .hero-btn-overlay:focus {
+    outline: 2px solid rgba(0, 91, 255, 0.8);
+    outline-offset: 2px;
+  }
+  
+  /* Get Directions button (blue, top right) */
+  .hero-btn-directions {
+    top: 32%;
+    right: 6%;
+    width: 16%;
+    height: 22%;
+  }
+  
+  /* Call Store button (white, below Get Directions) */
+  .hero-btn-call {
+    top: 58%;
+    right: 6%;
+    width: 16%;
+    height: 22%;
+  }
+  
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  .hero-placeholder {
+    padding: 80px 20px;
+    text-align: center;
+    background: #f8f9fa;
+    color: #6c757d;
+  }
+  
+  .hero-placeholder p {
+    margin: 8px 0;
+    font-size: 14px;
+  }
+  
+  .hero-placeholder strong {
+    color: #1a1a1a;
+  }
+  
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    /* Adjust button positions for mobile */
+    .hero-btn-directions {
+      top: 30%;
+      right: 5%;
+      width: 42%;
+      height: 26%;
+    }
+    
+    .hero-btn-call {
+      top: 60%;
+      right: 5%;
+      width: 42%;
+      height: 26%;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+    /* Tablet adjustments */
+    .hero-btn-directions {
+      top: 31%;
+      right: 5.5%;
+      width: 18%;
+      height: 23%;
+    }
+    
+    .hero-btn-call {
+      top: 58%;
+      right: 5.5%;
+      width: 18%;
+      height: 23%;
+    }
+  }
+    
+    /* Adjust button overlay position for mobile - matches "Get Directions" button exactly */
+    .hero-cta-overlay {
+      bottom: 15.5%;
+      left: 8.5%;
+      width: 35%;
+      height: 5.5%;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+    /* Tablet adjustments */
+    .hero-cta-overlay {
+      bottom: 16%;
+      left: 8%;
+      width: 30%;
+      height: 5.5%;
+    }
+  }
+  
+  @media (min-width: 1025px) {
+    /* Desktop - swap to the desktop hero image */
+    .hero-mobile-image {
+      display: none;
+    }
+    .hero-desktop-image {
+      display: block;
+    }
+
+    /* Desktop - position button precisely (adjust to match your desktop image's button) */
+    .hero-cta-overlay {
+      bottom: 11%;
+      left: 4.5%;
+      width: 19%;
+      height: 8%;
+    }
+  }
+  
+  /* ══════════════ FEATURE CARDS STRIP ══════════════ */
+  .features-strip {
+    background: #ffffff;
+    padding: 32px 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .feature-card {
+    text-align: center;
+    padding: 20px 12px;
+  }
+  
+  .feature-card-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+  
+  .feature-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  
+  .feature-card p {
+    font-size: 12px;
+    color: #6c757d;
+    line-height: 1.4;
+    margin: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .features-strip {
+      padding: 24px 16px;
+    }
+    
+    .features-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px 12px;
+    }
+    
+    .feature-card {
+      padding: 16px 8px;
+    }
+    
+    .feature-card-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    
+    .feature-card h3 {
+      font-size: 13px;
+    }
+    
+    .feature-card p {
+      font-size: 11px;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .features-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
   }
   
   /* ══════════════ LOCATION SECTION ══════════════ */
@@ -723,29 +857,39 @@
   .products-section,
   .signature-section {
     padding: 60px 20px;
-    background: #f8f9fa;
+    background: #ffffff;
   }
   
   .section-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-    color: #6c757d;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
+    color: #9ca3af;
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+    text-align: left;
+    text-transform: uppercase;
+  }
+  
+  .section-title {
+    font-size: 2.75rem;
+    font-weight: 900;
+    line-height: 1.2;
+    color: #1a1a1a;
+    margin-bottom: 48px;
+    text-align: left;
   }
   
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-    margin-top: 32px;
+    max-width: 1200px;
   }
   
   .product-card {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
     transition: transform 0.3s ease;
   }
   
@@ -757,6 +901,9 @@
     position: relative;
     height: 200px;
     overflow: hidden;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    background: #f3f4f6;
   }
   
   .product-image img {
@@ -767,38 +914,151 @@
   
   .product-icon {
     position: absolute;
-    top: 16px;
-    left: 16px;
-    font-size: 32px;
+    bottom: -28px;
+    left: 24px;
     background: white;
-    width: 50px;
-    height: 50px;
+    width: 64px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10;
+  }
+  
+  .product-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .product-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .placeholder-text {
+    font-size: 13px;
+    color: #9ca3af;
+    font-weight: 600;
   }
   
   .product-card h3 {
-    padding: 20px 20px 8px;
-    font-size: 18px;
+    padding: 16px 0 6px;
+    font-size: 17px;
     font-weight: 700;
     color: #1a1a1a;
+    line-height: 1.3;
   }
   
   .product-card p {
-    padding: 0 20px 20px;
+    padding: 0;
     font-size: 14px;
     color: #6c757d;
+    line-height: 1.5;
+    margin: 0;
   }
   
-  .product-price {
-    display: block;
-    padding: 0 20px 20px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #0a06ff;
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .products-section,
+    .signature-section {
+      padding: 48px 20px;
+    }
+    
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+    }
+    
+    .section-title {
+      font-size: 1.75rem;
+      margin-bottom: 36px;
+    }
+    
+    .product-grid {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+    
+    .product-image {
+      height: 180px;
+      margin-bottom: 14px;
+    }
+    
+    .product-icon {
+      width: 56px;
+      height: 56px;
+      bottom: -24px;
+      left: 20px;
+    }
+    
+    .product-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .product-card h3 {
+      font-size: 16px;
+      padding: 14px 0 6px;
+    }
+    
+    .product-card p {
+      font-size: 13px;
+    }
+    
+    .signature-card img,
+    .signature-image-placeholder {
+      height: 180px;
+    }
+    
+    .signature-info {
+      padding: 16px 18px;
+    }
+    
+    .signature-info h3 {
+      font-size: 16px;
+    }
+    
+    .signature-info p {
+      font-size: 12px;
+    }
+    
+    .order-button {
+      width: 36px;
+      height: 36px;
+    }
+    
+    .order-button svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .social-card {
+      height: 220px;
+    }
+    
+    .social-quote {
+      font-size: 14px;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .section-title {
+      font-size: 2.25rem;
+    }
+    
+    .product-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    
+    .product-image {
+      height: 180px;
+    }
   }
   
   .signature-grid {
@@ -817,42 +1077,71 @@
   
   .signature-card img {
     width: 100%;
-    height: 250px;
+    height: 220px;
     object-fit: cover;
+    display: block;
+  }
+
+  .signature-image-placeholder {
+    width: 100%;
+    height: 220px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
   }
   
   .signature-info {
-    padding: 24px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .signature-text {
+    flex: 1;
+    min-width: 0;
   }
   
   .signature-info h3 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: #1a1a1a;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   
   .signature-info p {
-    font-size: 14px;
+    font-size: 13px;
     color: #6c757d;
-    margin-bottom: 16px;
+    line-height: 1.5;
+    margin-bottom: 0;
   }
   
   .order-button {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
     background: #0a06ff;
-    color: white;
-    padding: 12px 24px;
     border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s ease;
+  }
+
+  .order-button svg {
+    width: 18px;
+    height: 18px;
   }
   
   .order-button:hover {
     background: #0804cc;
-    transform: translateX(4px);
+    transform: translateX(2px);
   }
   
   /* ══════════════ MAP SECTION ══════════════ */
@@ -1005,13 +1294,25 @@
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    height: 350px;
+    height: 280px;
   }
   
   .social-card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+  }
+
+  .social-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
   }
   
   .social-overlay {
@@ -1019,61 +1320,159 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-    padding: 24px;
+    background: linear-gradient(to top, rgba(0,0,0,0.75), transparent 60%);
+    padding: 20px;
     color: white;
   }
   
   .social-quote {
     font-size: 16px;
-    font-weight: 600;
-    line-height: 1.4;
+    font-weight: 700;
+    line-height: 1.35;
   }
   
   /* ══════════════ FINAL CTA ══════════════ */
   .final-cta-section {
-    padding: 80px 20px;
-    background: linear-gradient(135deg, #0a06ff, #0804cc);
-    color: white;
-    text-align: center;
+    background: #ffffff;
+    padding: 40px 20px 40px 0;
+    overflow: hidden;
   }
   
-  .final-cta-content {
-    max-width: 600px;
+  .final-cta-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr auto;
+    align-items: center;
+    gap: 32px;
+    max-width: 1400px;
     margin: 0 auto;
   }
   
-  .cta-logo {
-    width: 120px;
-    margin-bottom: 24px;
+  .final-cta-image {
+    height: 260px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .final-cta-image img {
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+    object-fit: contain;
+    display: block;
+  }
+  
+  .final-cta-image-placeholder {
+    width: 100%;
+    height: 200px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .final-cta-content {
+    max-width: 560px;
   }
   
   .cta-title {
-    font-size: 2.5rem;
+    font-size: 2.75rem;
     font-weight: 900;
-    line-height: 1.2;
-    margin-bottom: 16px;
+    line-height: 1.15;
+    color: #1a1a1a;
+    margin-bottom: 12px;
   }
   
   .cta-title .blue-text {
-    color: #ffc107;
+    color: #0a06ff;
   }
   
   .cta-subtitle {
-    font-size: 18px;
-    opacity: 0.9;
-    margin-bottom: 32px;
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 0;
   }
   
   .final-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 220px;
   }
   
-  .cta-button.large {
-    padding: 20px 32px;
-    font-size: 16px;
+  .cta-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+  }
+  
+  .cta-button svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  
+  .cta-button.primary {
+    background: #0a06ff;
+    color: white;
+    border: 2px solid #0a06ff;
+  }
+  
+  .cta-button.primary:hover {
+    background: #0804cc;
+    border-color: #0804cc;
+  }
+  
+  .cta-button.secondary {
+    background: white;
+    color: #0a06ff;
+    border: 2px solid #0a06ff;
+  }
+  
+  .cta-button.secondary:hover {
+    background: #f0f0ff;
+  }
+  
+  @media (max-width: 900px) {
+    .final-cta-section {
+      padding: 32px 20px;
+    }
+    
+    .final-cta-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      text-align: center;
+    }
+    
+    .final-cta-image {
+      height: 180px;
+      justify-content: center;
+    }
+    
+    .final-cta-image img {
+      max-height: 180px;
+      width: auto;
+    }
+    
+    .cta-title {
+      font-size: 2rem;
+    }
+    
+    .final-buttons {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+    }
   }
   
   /* ══════════════ STICKY FOOTER ══════════════ */
@@ -1301,8 +1700,15 @@
     },
     {
       "type": "image_picker",
-      "id": "hero_image",
-      "label": "Hero Banner Image"
+      "id": "hero_image_mobile",
+      "label": "Hero Banner - Mobile (800x1200px recommended)",
+      "info": "Vertical or square banner for mobile screens. Shows on screens ≤768px."
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image_desktop",
+      "label": "Hero Banner - Desktop (2000x400px recommended)",
+      "info": "Horizontal banner for desktop screens. Shows on screens >768px."
     },
     {
       "type": "image_picker",
@@ -1450,89 +1856,183 @@
     },
     {
       "type": "header",
+      "content": "Feature Cards - \"Coffee that fits your day\""
+    },
+    {
+      "type": "image_picker",
+      "id": "card1_image",
+      "label": "Card 1 Photo (person holding cup)"
+    },
+    {
+      "type": "text",
+      "id": "card1_name",
+      "label": "Card 1 Title",
+      "default": "No Detour"
+    },
+    {
+      "type": "textarea",
+      "id": "card1_description",
+      "label": "Card 1 Description",
+      "default": "Grab your coffee without leaving work."
+    },
+    {
+      "type": "image_picker",
+      "id": "card2_image",
+      "label": "Card 2 Photo (espresso pour)"
+    },
+    {
+      "type": "text",
+      "id": "card2_name",
+      "label": "Card 2 Title",
+      "default": "Made Fresh"
+    },
+    {
+      "type": "textarea",
+      "id": "card2_description",
+      "label": "Card 2 Description",
+      "default": "Every cup prepared to order."
+    },
+    {
+      "type": "image_picker",
+      "id": "card3_image",
+      "label": "Card 3 Photo (laptop + mug)"
+    },
+    {
+      "type": "text",
+      "id": "card3_name",
+      "label": "Card 3 Title",
+      "default": "Worth the Pause"
+    },
+    {
+      "type": "textarea",
+      "id": "card3_description",
+      "label": "Card 3 Description",
+      "default": "Small Sips. Big Moments."
+    },
+    {
+      "type": "header",
+      "content": "Signature Drinks"
+    },
+    {
+      "type": "image_picker",
+      "id": "sig1_image",
+      "label": "Drink 1 Photo (Flat White)"
+    },
+    {
+      "type": "text",
+      "id": "sig1_name",
+      "label": "Drink 1 Name",
+      "default": "Flat White"
+    },
+    {
+      "type": "textarea",
+      "id": "sig1_description",
+      "label": "Drink 1 Description",
+      "default": "Silky microfoam with a rich, smooth finish."
+    },
+    {
+      "type": "image_picker",
+      "id": "sig2_image",
+      "label": "Drink 2 Photo (Iced Spanish Latte)"
+    },
+    {
+      "type": "text",
+      "id": "sig2_name",
+      "label": "Drink 2 Name",
+      "default": "Iced Spanish Latte"
+    },
+    {
+      "type": "textarea",
+      "id": "sig2_description",
+      "label": "Drink 2 Description",
+      "default": "Sweet, creamy & bold. Perfect for your afternoon."
+    },
+    {
+      "type": "image_picker",
+      "id": "sig3_image",
+      "label": "Drink 3 Photo (Cold Brew)"
+    },
+    {
+      "type": "text",
+      "id": "sig3_name",
+      "label": "Drink 3 Name",
+      "default": "Cold Brew"
+    },
+    {
+      "type": "textarea",
+      "id": "sig3_description",
+      "label": "Drink 3 Description",
+      "default": "Smooth. Bold. Refreshingly clean."
+    },
+    {
+      "type": "header",
+      "content": "Real Moments. Real People."
+    },
+    {
+      "type": "image_picker",
+      "id": "social1_image",
+      "label": "Photo 1 (morning coffee)"
+    },
+    {
+      "type": "text",
+      "id": "social1_quote",
+      "label": "Photo 1 Quote",
+      "default": "Morning ritual before stand-up."
+    },
+    {
+      "type": "image_picker",
+      "id": "social2_image",
+      "label": "Photo 2 (afternoon coffee)"
+    },
+    {
+      "type": "text",
+      "id": "social2_quote",
+      "label": "Photo 2 Quote",
+      "default": "Afternoon reset."
+    },
+    {
+      "type": "image_picker",
+      "id": "social3_image",
+      "label": "Photo 3 (coffee with coworker)"
+    },
+    {
+      "type": "text",
+      "id": "social3_quote",
+      "label": "Photo 3 Quote",
+      "default": "Coffee worth leaving your desk for."
+    },
+    {
+      "type": "header",
       "content": "Final CTA"
     },
     {
       "type": "image_picker",
-      "id": "cta_image",
-      "label": "CTA Logo/Image"
+      "id": "final_cta_image",
+      "label": "Cup Photo (hand holding coffee cup)"
+    },
+    {
+      "type": "text",
+      "id": "cta_title_line1",
+      "label": "Title Line 1",
+      "default": "Your next coffee is"
+    },
+    {
+      "type": "text",
+      "id": "cta_title_line2_prefix",
+      "label": "Title Line 2 (before highlight)",
+      "default": "already"
+    },
+    {
+      "type": "text",
+      "id": "cta_title_line2_highlight",
+      "label": "Title Line 2 (highlighted word)",
+      "default": "downstairs"
     },
     {
       "type": "text",
       "id": "cta_subtitle",
       "label": "CTA Subtitle",
       "default": "Skip the queue. Skip the detour. Just great coffee."
-    }
-  ],
-  "blocks": [
-    {
-      "type": "product",
-      "name": "Product Card",
-      "settings": [
-        {
-          "type": "image_picker",
-          "id": "product_image",
-          "label": "Product Image"
-        },
-        {
-          "type": "text",
-          "id": "product_icon",
-          "label": "Product Icon (Emoji)",
-          "default": "☕"
-        },
-        {
-          "type": "text",
-          "id": "product_name",
-          "label": "Product Name"
-        },
-        {
-          "type": "textarea",
-          "id": "product_description",
-          "label": "Product Description"
-        },
-        {
-          "type": "text",
-          "id": "product_price",
-          "label": "Price"
-        }
-      ]
-    },
-    {
-      "type": "signature",
-      "name": "Signature Drink",
-      "settings": [
-        {
-          "type": "image_picker",
-          "id": "signature_image",
-          "label": "Drink Image"
-        },
-        {
-          "type": "text",
-          "id": "signature_name",
-          "label": "Drink Name"
-        },
-        {
-          "type": "textarea",
-          "id": "signature_description",
-          "label": "Description"
-        }
-      ]
-    },
-    {
-      "type": "testimonial",
-      "name": "Testimonial/Photo",
-      "settings": [
-        {
-          "type": "image_picker",
-          "id": "testimonial_image",
-          "label": "Photo"
-        },
-        {
-          "type": "text",
-          "id": "testimonial_quote",
-          "label": "Quote"
-        }
-      ]
     }
   ],
   "presets": [

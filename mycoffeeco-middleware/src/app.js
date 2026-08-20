@@ -12,6 +12,7 @@ const shopifyRoutes     = require("./routes/shopify");
 const authRoutes        = require("./routes/auth");
 const directOrderRoutes = require("./routes/directOrder");
 const referralRoutes    = require("./routes/referrals");
+const locationRoutes    = require("./routes/locations");
 
 // Apply express.json() globally EXCEPT for routes that need raw body for HMAC verification
 app.use((req, res, next) => {
@@ -52,6 +53,7 @@ app.use("/shopify",      shopifyRoutes);
 app.use("/auth",         authRoutes);
 app.use("/direct-order", directOrderRoutes);
 app.use("/api/referrals", referralRoutes);
+app.use("/",             locationRoutes); // Location landing pages with nested URLs
 
 // Global error handler — catches any unhandled errors from routes/controllers
 app.use((err, _req, res, _next) => {
