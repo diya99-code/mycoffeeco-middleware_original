@@ -18,12 +18,11 @@ const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_URL || 'https://mycoffeeco.com'
 /**
  * 4-Level Deep Location URL
  * URL: /locations/gurgaon/dlf-cyber-city/building-14
- * Redirects to: /pages/locations-gurgaon-dlf-cyber-city-building-14
+ * Redirects to: /pages/ad-landing-page
  */
 router.get('/locations/:city/:area/:building', (req, res) => {
-  const { city, area, building } = req.params;
-  const shopifyPageUrl = `${SHOPIFY_DOMAIN}/pages/locations-${city}-${area}-${building}`;
-  console.log(`[Locations] 4-level deep → ${shopifyPageUrl}`);
+  const shopifyPageUrl = `${SHOPIFY_DOMAIN}/pages/ad-landing-page`;
+  console.log(`[Locations] Building landing page → ${shopifyPageUrl}`);
   res.redirect(301, shopifyPageUrl);
 });
 
