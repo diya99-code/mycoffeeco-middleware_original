@@ -18,11 +18,41 @@ const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_URL || 'https://mycoffeeco.com'
 console.log('[Locations Router] Loaded. SHOPIFY_DOMAIN:', SHOPIFY_DOMAIN);
 
 /**
+ * Fetch and serve Shopify page content
+ */
+async function fetchAndServeShopifyPage(req, res, shopifyPageUrl) {
+  try {
+    // Fetch the page from Shopify
+    const response = await fetch(shopifyPageUrl);
+    
+    if (!response.ok) {
+      console.error(`[Locations] Failed to fetch Shopify page: ${response.status}`);
+      return res.status(response.status).send('Page not found');
+    }
+    
+    // Get the HTML content
+    let html = await response.text();
+    
+    // Optional: Modify HTML to fix any absolute URLs if needed
+    // html = html.replace(/https:\/\/mycoffeeco\.com\/pages\//g, 'https://mycoffeeco.com/a/locations/');
+    
+    // Serve the HTML with proper headers
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+    
+    console.log(`[Locations] Served page from: ${shopifyPageUrl}`);
+  } catch (error) {
+    console.error(`[Locations] Error fetching page:`, error);
+    res.status(500).send('Error loading page');
+  }
+}
+
+/**
  * App Proxy Route - Shopify strips /a/locations prefix
  * When user visits: /a/locations/gurgaon/dlf-cyber-city/building-14
  * Shopify sends to proxy: /gurgaon/dlf-cyber-city/building-14
  */
-router.get('/:param1/:param2/:param3', (req, res, next) => {
+router.get('/:param1/:param2/:param3', async (req, res, next) => {
   const { param1, param2, param3 } = req.params;
   
   // Only handle if it looks like a location path (lowercase with hyphens)
@@ -32,8 +62,8 @@ router.get('/:param1/:param2/:param3', (req, res, next) => {
   
   if (isLocationPath) {
     const shopifyPageUrl = `${SHOPIFY_DOMAIN}/pages/ad-landing-page`;
-    console.log(`[Locations] App Proxy → ${shopifyPageUrl} (path: ${param1}/${param2}/${param3})`);
-    return res.redirect(301, shopifyPageUrl);
+    console.log(`[Locations] App Proxy serving page (path: ${param1}/${param2}/${param3})`);
+    return await fetchAndServeShopifyPage(req, res, shopifyPageUrl);
   }
   
   // Not a location path, pass to next handler (404)
@@ -45,10 +75,10 @@ router.get('/:param1/:param2/:param3', (req, res, next) => {
  * URL: /locations/gurgaon/dlf-cyber-city/building-14
  * Redirects to: /pages/ad-landing-page
  */
-router.get('/locations/:city/:area/:building', (req, res) => {
+router.get('/locations/:city/:area/:building', async (req, res) => {
   const shopifyPageUrl = `${SHOPIFY_DOMAIN}/pages/ad-landing-page`;
-  console.log(`[Locations] Direct route → ${shopifyPageUrl}`);
-  res.redirect(301, shopifyPageUrl);
+  console.log(`[Locations] Direct route serving page`);
+  await fetchAndServeShopifyPage(req, res, shopifyPageUrl);
 });
 
 /**
