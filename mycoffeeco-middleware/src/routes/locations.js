@@ -33,11 +33,24 @@ async function fetchAndServeShopifyPage(req, res, shopifyPageUrl) {
     // Get the HTML content
     let html = await response.text();
     
-    // Optional: Modify HTML to fix any absolute URLs if needed
-    // html = html.replace(/https:\/\/mycoffeeco\.com\/pages\//g, 'https://mycoffeeco.com/a/locations/');
+    // Remove any canonical URLs that point to the Shopify page
+    html = html.replace(/<link[^>]+rel=["']canonical["'][^>]*>/gi, '');
+    
+    // Remove any meta redirects
+    html = html.replace(/<meta[^>]+http-equiv=["']refresh["'][^>]*>/gi, '');
+    
+    // Remove any JavaScript redirects (common patterns)
+    html = html.replace(/window\.location\.href\s*=\s*["'][^"']*["']/gi, '');
+    html = html.replace(/window\.location\.replace\([^)]*\)/gi, '');
+    html = html.replace(/window\.location\s*=\s*["'][^"']*["']/gi, '');
+    
+    // Fix any absolute URLs pointing to /pages/ to point to /a/locations/
+    // (Uncomment if you have links within the page that should stay on the clean URL)
+    // html = html.replace(/href=["']\/pages\/ad-landing-page["']/gi, `href="/a/locations/${req.params.param1}/${req.params.param2}/${req.params.param3}"`);
     
     // Serve the HTML with proper headers
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.send(html);
     
     console.log(`[Locations] Served page from: ${shopifyPageUrl}`);
