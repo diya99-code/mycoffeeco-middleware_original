@@ -3,6 +3,8 @@
  *
  * Maps a Shopify Order payload
  * into a Rista Sale payload.
+ * 
+ * Updated to match new Rista API format (2026-08-22)
  */
 
 /**
@@ -35,7 +37,7 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
     const hasDelivery = !!shipping;
 
     // ==========================================
-    // Build Payload
+    // Build Payload - New Rista Format
     // ==========================================
 
     return {
@@ -53,107 +55,57 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
 
         status: "Open",
 
+        createdDate: shopifyOrder.created_at,
+
         //----------------------------------------------------
-        // Source Information
+        // Source Information - Updated Format
         //----------------------------------------------------
 
         sourceInfo: {
-
-            companyName: process.env.COMPANY_NAME,
-
-            source: "Shopify",
 
             invoiceNumber: shopifyOrder.name,
 
             orderTransactionId: String(shopifyOrder.id),
 
-            invoiceDate:
-                shopifyOrder.created_at,
+            invoiceDate: shopifyOrder.created_at,
 
-            callbackURL:
-                process.env.SHOPIFY_CALLBACK_URL || "",
+            orderTime: shopifyOrder.created_at,
 
-            isEditable: true,
+            source: "Online",
 
-            verifyCoupons: true,
+            isEditable: false,
 
-            isEcomOrder: true
+            verifyCoupons: false,
 
-        },
+            isEcomOrder: true,
 
-        //----------------------------------------------------
-        // Delivery
-        //----------------------------------------------------
+            outletId: process.env.RISTA_OUTLET_ID || "shopify_outlet",
 
-        delivery: {
+            callbackURL: process.env.SHOPIFY_CALLBACK_URL || "",
 
-            mode: hasDelivery
-                ? "Delivery"
-                : "Pickup",
-
-            advanceOrder: false,
-
-            name:
-                `${customer.first_name || ""} ${customer.last_name || ""}`.trim(),
-
-            email:
-                customer.email || "",
-
-            // customer.phone is null for email-only logins — use checkout phone
-            phoneNumber:
-                customer.phone ||
-                shopifyOrder.shipping_address?.phone ||
-                shopifyOrder.billing_address?.phone ||
-                "",
-
-            deliveryDate:
-                shopifyOrder.processed_at ||
-                shopifyOrder.created_at,
-
-            address: hasDelivery
-                ? {
-
-                    label: "Shipping",
-
-                    addressLine:
-                        shipping.address1 || "",
-
-                    city:
-                        shipping.city || "",
-
-                    state:
-                        shipping.province || "",
-
-                    country:
-                        shipping.country || "",
-
-                    zip:
-                        shipping.zip || "",
-
-                    landmark: ""
-
-                }
-                : undefined
+            callbackHeaders: {}
 
         },
 
         //----------------------------------------------------
-        // Customer
+        // Channel - Updated Format
+        //----------------------------------------------------
+
+        channel: (() => {
+            const attrs = shopifyOrder.note_attributes || [];
+            const channelAttr = attrs.find(a => a.name === 'rista_channel');
+            return channelAttr ? channelAttr.value : (process.env.SHOPIFY_RISTA_CHANNEL || 'Website');
+        })(),
+
+        //----------------------------------------------------
+        // Customer - Simplified Format
         //----------------------------------------------------
 
         customer: {
 
-            id:
-                ristaCustomerId,
-
             name:
                 `${customer.first_name || ""} ${customer.last_name || ""}`.trim(),
 
-            email:
-                customer.email || "",
-
-            // customer.phone is null for email-only (New Customer Accounts) logins.
-            // Fall back to shipping/billing address phone filled at checkout.
             phoneNumber:
                 customer.phone ||
                 shopifyOrder.shipping_address?.phone ||
@@ -163,256 +115,128 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
         },
 
         //----------------------------------------------------
-        // Channel
+        // Items - New Format with Required Tax Structure
         //----------------------------------------------------
 
-        // Use "Takeaway" as the default channel for Shopify online orders.
-        // Change to "Delivery" if you want delivery orders routed differently.
-        channel: (() => {
-            const attrs = shopifyOrder.note_attributes || [];
-            const channelAttr = attrs.find(a => a.name === 'rista_channel');
-            return channelAttr ? channelAttr.value : (process.env.SHOPIFY_RISTA_CHANNEL || 'Takeaway');
-        })(),
-
-        //----------------------------------------------------
-        // Products
-        //----------------------------------------------------
-
-        items: shopifyOrder.line_items.map(item => ({
-
-            skuCode:
-                item.sku || "",
-
-            shortName:
-                item.title,
-
-            longName:
-                item.title,
-
-            variants:
-                item.variant_title || "",
-
-            quantity:
-                Number(item.quantity),
-
-            unitPrice:
-                Number(item.price),
-
-            itemNature: "Goods",
-
-            itemAmount:
-                Number(item.price) *
-                Number(item.quantity),
-
-            itemTotalAmount:
-                Number(item.price) *
-                Number(item.quantity),
-
-            note:
-                item.note || "",
-
-            //------------------------------------------------
-            // Shopify Customizations
-            //------------------------------------------------
-
-            options:
-
-                item.properties
-
-                    ? item.properties
-
-                        .filter(property => property.value)
-
-                        .map(property => ({
-
-                            name:
-                                property.name,
-
-                            quantity: 1,
-
-                            unitPrice: 0
-
-                        }))
-
-                    : [],
-
-            //------------------------------------------------
-            // Item Discounts
-            // Rista spec: discount amount must be negative for a Sale
-            //------------------------------------------------
-
-            discounts:
-
-                item.discount_allocations && item.discount_allocations.length > 0
-
-                    ? item.discount_allocations.map(discount => ({
-
-                        name: "Shopify Discount",
-
-                        type: "Absolute",
-
-                        rate: Number(discount.amount),
-
-                        amount: -Math.abs(Number(discount.amount))
-
+        items: shopifyOrder.line_items.map(item => {
+            const itemPrice = Number(item.price);
+            const itemQty = Number(item.quantity);
+            const itemAmount = itemPrice * itemQty;
+            
+            // Calculate tax amounts (Shopify includes tax in price)
+            const taxLines = item.tax_lines || [];
+            const taxAmountExcluded = taxLines.reduce((sum, tax) => sum + Number(tax.price), 0);
+            
+            return {
+                skuCode: item.sku || "",
+                shortName: item.title,
+                longName: item.title,
+                itemNature: "Service",
+                quantity: itemQty,
+                unitPrice: itemPrice,
+                itemAmount: itemAmount,
+                
+                // Taxes - Required format with CGST/SGST structure
+                taxes: taxLines.length > 0 
+                    ? taxLines.map(tax => ({
+                        name: tax.title || "GST",
+                        percentage: Number(tax.rate) * 100,
+                        amountExcluded: Number(tax.price),
+                        amount: Number(tax.price)
                     }))
-
-                    : []
-
-        })),
-
-        //----------------------------------------------------
-        // Amounts
-        //----------------------------------------------------
-
-        itemTotalAmount:
-            Number(shopifyOrder.subtotal_price || 0),
-
-        ...(Number(shopifyOrder.total_discounts || 0) > 0 && {
-            discountAmount: -Math.abs(Number(shopifyOrder.total_discounts))
-        }),
-
-        ...(Number(shopifyOrder.total_tax || 0) > 0 && {
-            taxAmountIncluded: Number(shopifyOrder.total_tax)
-        }),
-
-        billAmount:
-            Number(shopifyOrder.total_price || 0),
-
-        billRoundedAmount:
-            Number(shopifyOrder.total_price || 0),
-
-        totalAmount:
-            Number(shopifyOrder.total_price || 0),
-
-        ...(Number(shopifyOrder.total_tip_received || 0) > 0 && {
-            tipAmount: Number(shopifyOrder.total_tip_received)
+                    : [
+                        {
+                            name: "CGST",
+                            percentage: 0.0,
+                            amountExcluded: 0.0,
+                            amount: 0.0
+                        },
+                        {
+                            name: "SGST",
+                            percentage: 0.0,
+                            amountExcluded: 0.0,
+                            amount: 0.0
+                        }
+                    ],
+                
+                taxAmountExcluded: taxAmountExcluded,
+                itemTotalAmount: itemAmount
+            };
         }),
 
         //----------------------------------------------------
-        // Shipping Charges
-        // Rista spec: SaleCharge requires name*, type*, rate*, amount*
+        // Order-level Taxes - New Format
         //----------------------------------------------------
 
-        charges:
-
-            shopifyOrder.shipping_lines && shopifyOrder.shipping_lines.length > 0
-
-                ? shopifyOrder.shipping_lines.map(charge => ({
-
-                    name:
-                        charge.title,
-
-                    type: "Absolute",
-
-                    rate: Number(charge.price),
-
-                    amount:
-                        Number(charge.price)
-
-                }))
-
-                : [],
-
-        //----------------------------------------------------
-        // Order-level Discounts
-        // Rista spec: amount must be negative for a Sale.
-        // Shopify gives total_discounts as one number, not per-application,
-        // so we emit a single consolidated discount entry.
-        //----------------------------------------------------
-
-        discounts:
-
-            Number(shopifyOrder.total_discounts || 0) > 0
-
-                ? [
-                    {
-                        name:
-                            shopifyOrder.discount_applications?.[0]?.title ||
-                            "Shopify Discount",
-
-                        type: "Absolute",
-
-                        rate: Number(shopifyOrder.total_discounts),
-
-                        amount: -Math.abs(Number(shopifyOrder.total_discounts))
-                    }
-                ]
-
-                : [],
+        taxes: shopifyOrder.tax_lines && shopifyOrder.tax_lines.length > 0
+            ? shopifyOrder.tax_lines.map(tax => ({
+                name: tax.title || "GST",
+                percentage: Number(tax.rate) * 100,
+                amountExcluded: Number(tax.price),
+                amount: Number(tax.price),
+                itemTaxExcluded: Number(tax.price)
+            }))
+            : [
+                {
+                    name: "CGST",
+                    percentage: 0.0,
+                    amountExcluded: 0.0,
+                    amount: 0.0,
+                    itemTaxExcluded: 0.0
+                },
+                {
+                    name: "SGST",
+                    percentage: 0.0,
+                    amountExcluded: 0.0,
+                    amount: 0.0,
+                    itemTaxExcluded: 0.0
+                }
+            ],
 
         //----------------------------------------------------
-        // Taxes
-        // Rista spec SaleTax: requires amountIncluded or amountExcluded (not "amount")
-        // Shopify tax_lines include tax in price, so we use amountIncluded
+        // Amounts - Updated Structure
         //----------------------------------------------------
 
-        taxes:
+        itemTotalAmount: Number(shopifyOrder.subtotal_price || 0),
 
-            shopifyOrder.tax_lines && shopifyOrder.tax_lines.length > 0
+        totalAmount: Number(shopifyOrder.total_price || 0),
 
-                ? shopifyOrder.tax_lines.map(tax => ({
+        discountAmount: Number(shopifyOrder.total_discounts || 0),
 
-                    name:
-                        tax.title,
-
-                    percentage:
-                        Number(tax.rate) * 100,
-
-                    amountIncluded:
-                        Number(tax.price)
-
-                }))
-
-                : [],
+        billAmount: 0.0, // Will be calculated by Rista
 
         //----------------------------------------------------
-        // Payments
+        // Payments - New Format
         //----------------------------------------------------
 
         payments: [
-
             {
-
-                // Map Shopify gateway names to Rista-compatible payment modes.
-                // Shopify gateway names (razorpay, stripe, etc.) are not recognized
-                // by Rista POS — map them to the closest Rista payment mode.
                 mode: (() => {
                     const gw = (shopifyOrder.gateway || "").toLowerCase();
                     if (gw === "cash_on_delivery" || gw === "cod") return "Cash";
-                    if (gw === "manual")                             return "Cash";
-                    return "Online"; // razorpay, stripe, paytm, etc.
+                    if (gw === "manual") return "Cash";
+                    return "Online";
                 })(),
-
-                amount:
-                    Number(shopifyOrder.total_price),
-
-                reference:
-                    String(shopifyOrder.id),
-
-                postedDate:
-                    shopifyOrder.processed_at ||
-                    shopifyOrder.created_at
-
+                amount: 0.0 // Rista will calculate based on billAmount
             }
-
         ],
 
         //----------------------------------------------------
-        // Notes
+        // Discounts - New Format (negative amounts)
         //----------------------------------------------------
 
-        note:
-            shopifyOrder.note || "",
-
-        //----------------------------------------------------
-        // Tags
-        //----------------------------------------------------
-
-        tags:
-            shopifyOrder.tags
-                ? shopifyOrder.tags.split(",").map(tag => tag.trim())
-                : []
+        discounts: Number(shopifyOrder.total_discounts || 0) > 0
+            ? [
+                {
+                    name: shopifyOrder.discount_applications?.[0]?.title || "Discount",
+                    type: "Absolute",
+                    rate: Number(shopifyOrder.total_discounts),
+                    saleAmount: Number(shopifyOrder.subtotal_price || 0),
+                    amount: -Math.abs(Number(shopifyOrder.total_discounts)),
+                    reason: shopifyOrder.discount_applications?.[0]?.title || "Shopify Discount"
+                }
+            ]
+            : []
 
     };
 
