@@ -125,7 +125,46 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
             
             // Calculate tax amounts (Shopify includes tax in price)
             const taxLines = item.tax_lines || [];
-            const taxAmountExcluded = taxLines.reduce((sum, tax) => sum + Number(tax.price), 0);
+            const totalTaxAmount = taxLines.reduce((sum, tax) => sum + Number(tax.price), 0);
+            
+            // ALWAYS use CGST/SGST structure (never IGST)
+            // Split total tax equally between CGST and SGST
+            let taxes;
+            if (totalTaxAmount > 0) {
+                const totalTaxRate = taxLines.reduce((sum, tax) => sum + Number(tax.rate), 0);
+                const halfTaxAmount = totalTaxAmount / 2;
+                const halfTaxRate = (totalTaxRate * 100) / 2;
+                
+                taxes = [
+                    {
+                        name: "CGST",
+                        percentage: halfTaxRate,
+                        amountExcluded: halfTaxAmount,
+                        amount: halfTaxAmount
+                    },
+                    {
+                        name: "SGST",
+                        percentage: halfTaxRate,
+                        amountExcluded: halfTaxAmount,
+                        amount: halfTaxAmount
+                    }
+                ];
+            } else {
+                taxes = [
+                    {
+                        name: "CGST",
+                        percentage: 0.0,
+                        amountExcluded: 0.0,
+                        amount: 0.0
+                    },
+                    {
+                        name: "SGST",
+                        percentage: 0.0,
+                        amountExcluded: 0.0,
+                        amount: 0.0
+                    }
+                ];
+            }
             
             return {
                 skuCode: item.sku || "",
@@ -135,47 +174,43 @@ exports.mapShopifyOrderToRista = (shopifyOrder, ristaCustomerId = "") => {
                 quantity: itemQty,
                 unitPrice: itemPrice,
                 itemAmount: itemAmount,
-                
-                // Taxes - Required format with CGST/SGST structure
-                taxes: taxLines.length > 0 
-                    ? taxLines.map(tax => ({
-                        name: tax.title || "GST",
-                        percentage: Number(tax.rate) * 100,
-                        amountExcluded: Number(tax.price),
-                        amount: Number(tax.price)
-                    }))
-                    : [
-                        {
-                            name: "CGST",
-                            percentage: 0.0,
-                            amountExcluded: 0.0,
-                            amount: 0.0
-                        },
-                        {
-                            name: "SGST",
-                            percentage: 0.0,
-                            amountExcluded: 0.0,
-                            amount: 0.0
-                        }
-                    ],
-                
-                taxAmountExcluded: taxAmountExcluded,
+                taxes: taxes,
+                taxAmountExcluded: totalTaxAmount,
                 itemTotalAmount: itemAmount
             };
         }),
 
         //----------------------------------------------------
-        // Order-level Taxes - New Format
+        // Order-level Taxes - ALWAYS use CGST/SGST (never IGST)
         //----------------------------------------------------
 
         taxes: shopifyOrder.tax_lines && shopifyOrder.tax_lines.length > 0
-            ? shopifyOrder.tax_lines.map(tax => ({
-                name: tax.title || "GST",
-                percentage: Number(tax.rate) * 100,
-                amountExcluded: Number(tax.price),
-                amount: Number(tax.price),
-                itemTaxExcluded: Number(tax.price)
-            }))
+            ? (() => {
+                // Calculate total tax amount and rate
+                const totalTaxAmount = shopifyOrder.tax_lines.reduce((sum, tax) => sum + Number(tax.price), 0);
+                const totalTaxRate = shopifyOrder.tax_lines.reduce((sum, tax) => sum + Number(tax.rate), 0);
+                
+                // Split equally between CGST and SGST
+                const halfTaxAmount = totalTaxAmount / 2;
+                const halfTaxRate = (totalTaxRate * 100) / 2;
+                
+                return [
+                    {
+                        name: "CGST",
+                        percentage: halfTaxRate,
+                        amountExcluded: halfTaxAmount,
+                        amount: halfTaxAmount,
+                        itemTaxExcluded: halfTaxAmount
+                    },
+                    {
+                        name: "SGST",
+                        percentage: halfTaxRate,
+                        amountExcluded: halfTaxAmount,
+                        amount: halfTaxAmount,
+                        itemTaxExcluded: halfTaxAmount
+                    }
+                ];
+            })()
             : [
                 {
                     name: "CGST",
