@@ -54,12 +54,25 @@ exports.createOrder = async (shopifyOrder) => {
 
     const payload = mapShopifyOrderToRista(shopifyOrder, ristaCustomerId);
 
-    console.log("Sending to Rista POST /sale");
+    console.log("=== Sending to Rista POST /sale ===");
     console.log("Branch:", payload.branchCode);
     console.log("Channel:", payload.channel);
     console.log("Items count:", payload.items?.length);
     console.log("Total:", payload.totalAmount);
     console.log("Customer ID in payload:", payload.customer?.id || "(none)");
+    
+    // Log tax structure to verify CGST/SGST
+    console.log("\n--- Order-level Taxes ---");
+    console.log(JSON.stringify(payload.taxes, null, 2));
+    
+    console.log("\n--- Item-level Taxes (first item) ---");
+    if (payload.items && payload.items.length > 0) {
+        console.log(JSON.stringify(payload.items[0].taxes, null, 2));
+    }
+    
+    console.log("\n--- Full Payload ---");
+    console.log(JSON.stringify(payload, null, 2));
+    console.log("=================================\n");
 
     // Check for referral code in note_attributes
     const referralCode = (shopifyOrder.note_attributes || [])

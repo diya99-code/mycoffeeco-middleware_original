@@ -37,20 +37,21 @@
                loading="eager">
         {%- endif -%}
         
-        {%- comment -%} Clickable button overlays - "Get Directions" and "Call Store" {%- endcomment -%}
-        <a href="https://www.google.com/maps/dir/?api=1&destination={{ section.settings.store_latitude | default: '28.4943' }},{{ section.settings.store_longitude | default: '77.0868' }}&travelmode=walking" 
+        {%- comment -%} Clickable button overlays - "Get Directions" and "View Menu" {%- endcomment -%}
+        <a href="https://www.google.com/maps/dir/?api=1&destination={{ section.settings.store_latitude | default: '28.4935' }},{{ section.settings.store_longitude | default: '77.0868' }}&travelmode=walking" 
            target="_blank"
            class="hero-btn-overlay hero-btn-directions" 
            id="hero-directions-btn"
-           aria-label="Get Directions">
+           aria-label="Get Directions"
+           rel="noopener">
           <span class="sr-only">Get Directions</span>
         </a>
         
-        <a href="tel:{{ section.settings.phone | default: '+919876543210' }}" 
-           class="hero-btn-overlay hero-btn-call" 
-           id="hero-call-btn"
-           aria-label="Call Store">
-          <span class="sr-only">Call Store</span>
+        <a href="{{ section.settings.menu_link | default: '/pages/menu' }}" 
+           class="hero-btn-overlay hero-btn-menu" 
+           id="hero-menu-btn"
+           aria-label="View Menu">
+          <span class="sr-only">View Menu</span>
         </a>
       </div>
     {%- else -%}
@@ -285,7 +286,7 @@
             height="400" 
             frameborder="0" 
             style="border:0" 
-            src="https://www.google.com/maps/embed/v1/place?key={{ section.settings.google_maps_api_key }}&q={{ section.settings.map_query | default: 'My+Coffee+Co+DLF+Cyber+City+Gurgaon' | url_encode }}&zoom=16"
+            src="https://www.google.com/maps/embed/v1/place?key={{ section.settings.google_maps_api_key }}&q={{ section.settings.map_query | default: 'DLF+Infinity+Tower+Cyber+City+Gurgaon' | url_encode }}&zoom=16"
             allowfullscreen
             loading="lazy">
           </iframe>
@@ -301,7 +302,7 @@
           <div class="info-row">
             <span class="info-icon">📍</span>
             <div>
-              <strong>{{ section.settings.building_name | default: 'Building 14 • DLF Cyber City' }}</strong>
+              <strong>{{ section.settings.building_name | default: 'DLF Infinity Tower • DLF Cyber City' }}</strong>
               <p>{{ section.settings.full_address | default: 'Sector 24, Gurugram, Haryana 122022' }}</p>
             </div>
           </div>
@@ -431,7 +432,7 @@
       <div class="footer-location">
         <span class="pin-icon">📍</span>
         <div>
-          <strong>{{ section.settings.location_short | default: 'Building 14 • DLF Cyber City' }}</strong>
+          <strong>{{ section.settings.location_short | default: 'DLF Infinity Tower • DLF Cyber City' }}</strong>
           <small>{{ section.settings.distance | default: '2 min walk from your desk' }}</small>
         </div>
       </div>
@@ -537,20 +538,20 @@
     outline-offset: 2px;
   }
   
-  /* Get Directions button (blue, top right) */
+  /* Get Directions button (blue, left side) */
   .hero-btn-directions {
-    top: 32%;
-    right: 6%;
-    width: 16%;
-    height: 22%;
+    bottom: 8%;
+    left: 5%;
+    width: 23%;
+    height: 11%;
   }
   
-  /* Call Store button (white, below Get Directions) */
-  .hero-btn-call {
-    top: 58%;
-    right: 6%;
-    width: 16%;
-    height: 22%;
+  /* View Menu button (white, right side) */
+  .hero-btn-menu {
+    bottom: 8%;
+    left: 30%;
+    width: 23%;
+    height: 11%;
   }
   
   .sr-only {
@@ -585,34 +586,34 @@
   @media (max-width: 768px) {
     /* Adjust button positions for mobile */
     .hero-btn-directions {
-      top: 30%;
-      right: 5%;
-      width: 42%;
-      height: 26%;
+      bottom: 6%;
+      left: 5%;
+      width: 43%;
+      height: 10%;
     }
     
-    .hero-btn-call {
-      top: 60%;
-      right: 5%;
-      width: 42%;
-      height: 26%;
+    .hero-btn-menu {
+      bottom: 6%;
+      left: 51%;
+      width: 43%;
+      height: 10%;
     }
   }
   
   @media (min-width: 769px) and (max-width: 1024px) {
     /* Tablet adjustments */
     .hero-btn-directions {
-      top: 31%;
-      right: 5.5%;
-      width: 18%;
-      height: 23%;
+      bottom: 7%;
+      left: 5%;
+      width: 25%;
+      height: 10%;
     }
     
-    .hero-btn-call {
-      top: 58%;
-      right: 5.5%;
-      width: 18%;
-      height: 23%;
+    .hero-btn-menu {
+      bottom: 7%;
+      left: 32%;
+      width: 25%;
+      height: 10%;
     }
   }
     
@@ -1601,8 +1602,8 @@
   'use strict';
   
   // Google Maps directions link
-  const mapsQuery = {{ section.settings.maps_query | default: 'My Coffee Co, Building 14, DLF Cyber City, Gurgaon' | json }};
-  const storeLat = {{ section.settings.store_latitude | default: '28.4943' }};
+  const mapsQuery = {{ section.settings.maps_query | default: 'My Coffee Co, DLF Infinity Tower, DLF Cyber City, Gurgaon' | json }};
+  const storeLat = {{ section.settings.store_latitude | default: '28.4935' }};
   const storeLng = {{ section.settings.store_longitude | default: '77.0868' }};
   const storePhone = {{ section.settings.phone | default: '+919876543210' | json }};
   
@@ -1719,7 +1720,7 @@
       "type": "text",
       "id": "building_name",
       "label": "Building Name",
-      "default": "Building 14 • DLF Cyber City"
+      "default": "DLF Infinity Tower • DLF Cyber City"
     },
     {
       "type": "text",
@@ -1776,7 +1777,7 @@
       "type": "text",
       "id": "location_short",
       "label": "Short Location Name",
-      "default": "MyCoffee.co, DLF CYBER CITY"
+      "default": "DLF Infinity Tower, DLF Cyber City"
     },
     {
       "type": "textarea",
@@ -1804,25 +1805,28 @@
       "type": "text",
       "id": "map_query",
       "label": "Map Search Query",
-      "default": "My Coffee Co DLF Cyber City Gurgaon"
+      "default": "DLF Infinity Tower Cyber City Gurgaon",
+      "info": "Location name or address for map embed"
     },
     {
       "type": "text",
       "id": "maps_query",
       "label": "Directions Search Query",
-      "default": "My Coffee Co, Building 14, DLF Cyber City, Gurgaon"
+      "default": "My Coffee Co, DLF Infinity Tower, DLF Cyber City, Gurgaon"
     },
     {
       "type": "text",
       "id": "store_latitude",
       "label": "Store Latitude",
-      "default": "28.4943"
+      "default": "28.4935",
+      "info": "DLF Infinity Tower, Cyber City"
     },
     {
       "type": "text",
       "id": "store_longitude",
       "label": "Store Longitude",
-      "default": "77.0868"
+      "default": "77.0868",
+      "info": "DLF Infinity Tower, Cyber City"
     },
     {
       "type": "text",
