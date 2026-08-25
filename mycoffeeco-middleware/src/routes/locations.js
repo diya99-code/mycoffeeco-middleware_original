@@ -78,6 +78,8 @@ router.get('/pages/happy_moments', handleHappyMoments);
 router.post('/pages/happy_moments', handleHappyMoments);
 router.get('/happy_moments', handleHappyMoments);
 router.post('/happy_moments', handleHappyMoments);
+router.get('/contact', handleHappyMoments);
+router.post('/contact', handleHappyMoments);
 
 /**
  * App Proxy Route - 3 Level Parameters
