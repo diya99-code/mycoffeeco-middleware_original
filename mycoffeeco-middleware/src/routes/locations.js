@@ -113,6 +113,10 @@ router.get('/happy_moments', handleHappyMoments);
 router.post('/happy_moments', handleHappyMoments);
 router.get('/contact', handleHappyMoments);
 router.post('/contact', handleHappyMoments);
+router.get('/pages/feedback', handleHappyMoments);
+router.post('/pages/feedback', handleHappyMoments);
+router.get('/feedback', handleHappyMoments);
+router.post('/feedback', handleHappyMoments);
 
 /**
  * App Proxy Route - 3 Level Parameters
