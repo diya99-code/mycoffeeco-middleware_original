@@ -25,6 +25,26 @@ const handleHappyMoments = async (req, res) => {
     const formData = req.body || {};
     console.log('[Happy Moments Form Submitted]:', formData);
 
+    // Dispatch lead email notification to social@mycoffeeco.com
+    try {
+      console.log('[Happy Moments] Forwarding lead notification email to social@mycoffeeco.com...');
+      await fetch('https://formsubmit.co/ajax/social@mycoffeeco.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          _subject: '🎉 New Happy Moments Form Lead Inquiry - My Coffee Co.',
+          _template: 'table',
+          ...formData
+        })
+      });
+      console.log('[Happy Moments] Email notification sent to social@mycoffeeco.com successfully!');
+    } catch (emailErr) {
+      console.error('[Happy Moments] Email dispatch error (non-fatal):', emailErr.message);
+    }
+
     // Sync inquiry to Shopify Admin API if configured
     if (process.env.SHOPIFY_STORE && process.env.SHOPIFY_ACCESS_TOKEN) {
       try {
