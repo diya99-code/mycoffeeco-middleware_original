@@ -12,7 +12,6 @@ const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_URL || 'https://mycoffeeco.com'
 console.log('[Locations Router] Loaded. SHOPIFY_DOMAIN:', SHOPIFY_DOMAIN);
 
 const { shopifyPost } = require('../clients/shopifyClient');
-const { sendLeadEmail } = require('../services/emailService');
 
 // Helper slug regex allowing lowercase alphanumeric, hyphens, and underscores
 const isValidSlug = (str) => typeof str === 'string' && /^[a-z0-9_-]+$/i.test(str);
@@ -23,9 +22,6 @@ const isValidSlug = (str) => typeof str === 'string' && /^[a-z0-9_-]+$/i.test(st
  */
 const handleHappyMoments = async (req, res) => {
   if (req.method === 'POST') {
-    const formData = req.body || {};
-    console.log('[Happy Moments Form Submitted]:', formData);
-
     // Extract all Happy Moments Story fields from request body (handles various form field names)
     const name = formData.name || formData['contact[name]'] || formData['contact[Your Name]'] || formData.first_name || 'Coffee Lover';
     const phone = formData.phone || formData['contact[phone]'] || formData['contact[Phone Number]'] || '';
@@ -35,6 +31,8 @@ const handleHappyMoments = async (req, res) => {
     const isAnonymous = formData.anonymous || formData.share_anonymous ? 'Yes' : 'No';
 
     const formattedPayload = {
+      _subject: `🎉 New Happy Moments Story from ${socialHandle !== 'Not provided' ? socialHandle : name}`,
+      _template: 'table',
       'Social Handle': socialHandle,
       'Full Name': name,
       'Phone Number': phone ? `+91 ${phone.replace(/^\+?91/, '').replace(/\D/g, '').slice(-10)}` : 'N/A',
@@ -43,14 +41,18 @@ const handleHappyMoments = async (req, res) => {
       'Share Anonymously': isAnonymous
     };
 
-    // Dispatch lead email notification
-    const targetEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'social@mycoffeeco.com';
+    // Dispatch lead email notification to target email (default: singhsiddhartha220@gmail.com)
+    const targetEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'singhsiddhartha220@gmail.com';
     try {
       console.log(`[Happy Moments] Forwarding lead notification email (Handle: ${socialHandle}) to ${targetEmail}...`);
-      await sendLeadEmail({
-        to: targetEmail,
-        subject: `🎉 New Happy Moments Story from ${socialHandle !== 'Not provided' ? socialHandle : name}`,
-        data: formattedPayload
+      await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Referer': 'https://mycoffeeco.com'
+        },
+        body: JSON.stringify(formattedPayload)
       });
       console.log(`[Happy Moments] Email notification sent to ${targetEmail} successfully!`);
     } catch (emailErr) {
