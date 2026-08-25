@@ -22,13 +22,31 @@ const isValidSlug = (str) => typeof str === 'string' && /^[a-z0-9_-]+$/i.test(st
  */
 const handleHappyMoments = async (req, res) => {
   if (req.method === 'POST') {
-    const formData = req.body || {};
-    console.log('[Happy Moments Form Submitted]:', formData);
+    // Extract all Happy Moments Story fields from request body (handles various form field names)
+    const name = formData.name || formData['contact[name]'] || formData['contact[Your Name]'] || formData.first_name || 'Coffee Lover';
+    const phone = formData.phone || formData['contact[phone]'] || formData['contact[Phone Number]'] || '';
+    const socialHandle = formData.social_handle || formData.instagram || formData.handle || formData['contact[social]'] || formData['contact[Your Social Media Handle]'] || 'Not provided';
+    const momentType = formData.moment_type || formData.category || formData['contact[moment_type]'] || formData['contact[What kind of moment was it?]'] || 'General';
+    const story = formData.story || formData.happy_moment || formData.message || formData['contact[body]'] || formData['contact[Tell us about your happy moment.]'] || 'No story provided';
+    const oneWord = formData.one_word_description || formData.mood || formData['contact[one_word]'] || formData['contact[How would you describe it in one word?]'] || '';
+    const isAnonymous = formData.anonymous || formData.share_anonymous ? 'Yes' : 'No';
+
+    const formattedPayload = {
+      _subject: `🎉 New Happy Moments Story from ${socialHandle !== 'Not provided' ? socialHandle : name}`,
+      _template: 'table',
+      'Social Handle': socialHandle,
+      'Full Name': name,
+      'Phone Number': phone ? `+91 ${phone.replace(/^\+?91/, '').replace(/\D/g, '').slice(-10)}` : 'N/A',
+      'Moment Category': momentType,
+      'Happy Moment Story': story,
+      'One Word Mood': oneWord || 'N/A',
+      'Share Anonymously': isAnonymous
+    };
 
     // Dispatch lead email notification to target email (default: social@mycoffeeco.com)
     const targetEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'social@mycoffeeco.com';
     try {
-      console.log(`[Happy Moments] Forwarding lead notification email to ${targetEmail}...`);
+      console.log(`[Happy Moments] Forwarding lead notification email (Handle: ${socialHandle}) to ${targetEmail}...`);
       await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
         method: 'POST',
         headers: {
@@ -36,39 +54,33 @@ const handleHappyMoments = async (req, res) => {
           'Accept': 'application/json',
           'Referer': 'https://mycoffeeco.com'
         },
-        body: JSON.stringify({
-          _subject: '🎉 New Happy Moments Form Lead Inquiry - My Coffee Co.',
-          _template: 'table',
-          ...formData
-        })
+        body: JSON.stringify(formattedPayload)
       });
       console.log(`[Happy Moments] Email notification sent to ${targetEmail} successfully!`);
     } catch (emailErr) {
       console.error('[Happy Moments] Email dispatch error (non-fatal):', emailErr.message);
     }
 
-    // Sync inquiry to Shopify Admin API if configured
+    // Sync inquiry & Social Handle to Shopify Admin API if configured
     if (process.env.SHOPIFY_STORE && process.env.SHOPIFY_ACCESS_TOKEN) {
       try {
-        const nameParts = (formData.name || formData.first_name || 'Happy Moments Inquiry').trim().split(' ');
+        const nameParts = name.trim().split(' ');
         const firstName = nameParts[0];
         const lastName = nameParts.slice(1).join(' ') || 'Customer';
-        const email = formData.email || undefined;
-        const phone = formData.phone ? `+91${formData.phone.replace(/^\+?91/, '').replace(/\D/g, '').slice(-10)}` : undefined;
-        const note = formData.note || formData.message || formData.event_details || `Happy Moments inquiry: ${JSON.stringify(formData)}`;
+        const formattedPhone = phone ? `+91${phone.replace(/^\+?91/, '').replace(/\D/g, '').slice(-10)}` : undefined;
+        const note = `Social Handle: ${socialHandle}\nCategory: ${momentType}\nOne Word Mood: ${oneWord}\nAnonymous: ${isAnonymous}\n\nStory:\n${story}`;
 
-        console.log('[Happy Moments] Syncing inquiry to Shopify Admin...');
+        console.log('[Happy Moments] Syncing story & social handle to Shopify Admin...');
         await shopifyPost('/customers.json', {
           customer: {
             first_name: firstName,
             last_name: lastName,
-            email: email,
-            phone: phone,
+            phone: formattedPhone,
             note: note,
-            tags: 'happy_moments, event_inquiry'
+            tags: `happy_moments, story_shared, social:${socialHandle}`
           }
         });
-        console.log('[Happy Moments] Successfully synced inquiry to Shopify Admin!');
+        console.log('[Happy Moments] Successfully synced story to Shopify Admin!');
       } catch (err) {
         console.error('[Happy Moments] Failed to sync to Shopify Admin API (non-fatal):', err.message);
       }
