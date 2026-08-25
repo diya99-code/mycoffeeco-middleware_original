@@ -14,7 +14,7 @@ const directOrderRoutes = require("./routes/directOrder");
 const referralRoutes    = require("./routes/referrals");
 const locationRoutes    = require("./routes/locations");
 
-// Apply express.json() globally EXCEPT for routes that need raw body for HMAC verification
+// Apply express.json() and express.urlencoded() globally EXCEPT for routes that need raw body for HMAC verification
 app.use((req, res, next) => {
     const rawRoutes = [
         { method: "POST", path: "/orders/create" },
@@ -23,7 +23,10 @@ app.use((req, res, next) => {
     ];
     const isRaw = rawRoutes.some(r => r.method === req.method && req.path === r.path);
     if (isRaw) return next(); // skip — express.raw() is applied per-route
-    express.json()(req, res, next);
+    express.json()(req, res, (err) => {
+        if (err) return next(err);
+        express.urlencoded({ extended: true })(req, res, next);
+    });
 });
 
 // CORS — allow Shopify storefront and any browser to call /api/menu
