@@ -12,7 +12,6 @@ const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_URL || 'https://mycoffeeco.com'
 console.log('[Locations Router] Loaded. SHOPIFY_DOMAIN:', SHOPIFY_DOMAIN);
 
 const { shopifyPost } = require('../clients/shopifyClient');
-const { supabase } = require('../clients/supabaseClient');
 
 // Helper slug regex allowing lowercase alphanumeric, hyphens, and underscores
 const isValidSlug = (str) => typeof str === 'string' && /^[a-z0-9_-]+$/i.test(str);
@@ -31,33 +30,6 @@ const handleHappyMoments = async (req, res) => {
     const story = formData.story || formData.happy_moment || formData.message || formData['contact[body]'] || formData['contact[Tell us about your happy moment.]'] || 'No story provided';
     const oneWord = formData.one_word_description || formData.mood || formData['contact[one_word]'] || formData['contact[How would you describe it in one word?]'] || '';
     const isAnonymous = formData.anonymous || formData.share_anonymous ? 'Yes' : 'No';
-
-    // Save lead record into Supabase PostgreSQL database if connected
-    if (supabase) {
-      try {
-        console.log('[Supabase] Inserting lead story into PostgreSQL happy_moments table...');
-        const { data, error } = await supabase
-          .from('happy_moments')
-          .insert([
-            {
-              name: name,
-              phone: phone,
-              social_handle: socialHandle,
-              story: story,
-              one_word_description: oneWord,
-              is_anonymous: isAnonymous === 'Yes'
-            }
-          ]);
-
-        if (error) {
-          console.error('[Supabase Error]:', error.message);
-        } else {
-          console.log('[Supabase Success] Lead story successfully saved to PostgreSQL table!');
-        }
-      } catch (dbErr) {
-        console.error('[Supabase Exception] (non-fatal):', dbErr.message);
-      }
-    }
 
     const formattedPayload = {
       _subject: `🎉 New Happy Moments Story from ${socialHandle !== 'Not provided' ? socialHandle : name}`,
@@ -141,75 +113,6 @@ router.get('/happy_moments', handleHappyMoments);
 router.post('/happy_moments', handleHappyMoments);
 router.get('/contact', handleHappyMoments);
 router.post('/contact', handleHappyMoments);
-
-/**
- * Supabase CSV Lead Export Endpoint
- * URL: GET /api/happy_moments/export-csv
- */
-router.get('/api/happy_moments/export-csv', async (req, res) => {
-  if (!supabase) {
-    return res.status(500).send('Supabase is not configured yet. Please set SUPABASE_URL and SUPABASE_ANON_KEY in environment variables.');
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('happy_moments')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      return res.status(500).send(`Error fetching from Supabase: ${error.message}`);
-    }
-
-    if (!data || data.length === 0) {
-      return res.send('No happy moment submissions found yet.');
-    }
-
-    const headers = ['ID', 'Name', 'Phone', 'Social Handle', 'Story', 'One Word Mood', 'Anonymous', 'Created At'];
-    const rows = data.map(item => [
-      item.id,
-      `"${(item.name || '').replace(/"/g, '""')}"`,
-      `"${(item.phone || '').replace(/"/g, '""')}"`,
-      `"${(item.social_handle || '').replace(/"/g, '""')}"`,
-      `"${(item.story || '').replace(/"/g, '""')}"`,
-      `"${(item.one_word_description || '').replace(/"/g, '""')}"`,
-      item.is_anonymous ? 'Yes' : 'No',
-      `"${new Date(item.created_at).toLocaleString()}"`
-    ]);
-
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="happy_moments_leads_${Date.now()}.csv"`);
-    res.status(200).send(csvContent);
-  } catch (err) {
-    res.status(500).send(`CSV Export Failed: ${err.message}`);
-  }
-});
-
-/**
- * Public Stories API Endpoint
- * URL: GET /api/happy_moments/stories
- */
-router.get('/api/happy_moments/stories', async (req, res) => {
-  if (!supabase) {
-    return res.json({ success: false, message: 'Supabase not connected' });
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('happy_moments')
-      .select('id, name, social_handle, story, one_word_description, is_anonymous, created_at')
-      .order('created_at', { ascending: false })
-      .limit(30);
-
-    if (error) throw error;
-
-    return res.json({ success: true, stories: data });
-  } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
 
 /**
  * App Proxy Route - 3 Level Parameters
