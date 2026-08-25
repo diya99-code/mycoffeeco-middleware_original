@@ -25,8 +25,8 @@ const handleHappyMoments = async (req, res) => {
     const formData = req.body || {};
     console.log('[Happy Moments Form Submitted]:', formData);
 
-    // Dispatch lead email notification to target email (default: singhsiddhartha220@gmail.com)
-    const targetEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'singhsiddhartha220@gmail.com';
+    // Dispatch lead email notification to target email (default: social@mycoffeeco.com)
+    const targetEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'social@mycoffeeco.com';
     try {
       console.log(`[Happy Moments] Forwarding lead notification email to ${targetEmail}...`);
       await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
