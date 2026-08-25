@@ -26,7 +26,6 @@ const handleHappyMoments = async (req, res) => {
     const name = formData.name || formData['contact[name]'] || formData['contact[Your Name]'] || formData.first_name || 'Coffee Lover';
     const phone = formData.phone || formData['contact[phone]'] || formData['contact[Phone Number]'] || '';
     const socialHandle = formData.social_handle || formData.instagram || formData.handle || formData['contact[social]'] || formData['contact[Your Social Media Handle]'] || 'Not provided';
-    const momentType = formData.moment_type || formData.category || formData['contact[moment_type]'] || formData['contact[What kind of moment was it?]'] || 'General';
     const story = formData.story || formData.happy_moment || formData.message || formData['contact[body]'] || formData['contact[Tell us about your happy moment.]'] || 'No story provided';
     const oneWord = formData.one_word_description || formData.mood || formData['contact[one_word]'] || formData['contact[How would you describe it in one word?]'] || '';
     const isAnonymous = formData.anonymous || formData.share_anonymous ? 'Yes' : 'No';
@@ -37,7 +36,6 @@ const handleHappyMoments = async (req, res) => {
       'Social Handle': socialHandle,
       'Full Name': name,
       'Phone Number': phone ? `+91 ${phone.replace(/^\+?91/, '').replace(/\D/g, '').slice(-10)}` : 'N/A',
-      'Moment Category': momentType,
       'Happy Moment Story': story,
       'One Word Mood': oneWord || 'N/A',
       'Share Anonymously': isAnonymous
@@ -68,7 +66,7 @@ const handleHappyMoments = async (req, res) => {
         const firstName = nameParts[0];
         const lastName = nameParts.slice(1).join(' ') || 'Customer';
         const formattedPhone = phone ? `+91${phone.replace(/^\+?91/, '').replace(/\D/g, '').slice(-10)}` : undefined;
-        const note = `Social Handle: ${socialHandle}\nCategory: ${momentType}\nOne Word Mood: ${oneWord}\nAnonymous: ${isAnonymous}\n\nStory:\n${story}`;
+        const note = `Social Handle: ${socialHandle}\nOne Word Mood: ${oneWord}\nAnonymous: ${isAnonymous}\n\nStory:\n${story}`;
 
         console.log('[Happy Moments] Syncing story & social handle to Shopify Admin...');
         await shopifyPost('/customers.json', {
