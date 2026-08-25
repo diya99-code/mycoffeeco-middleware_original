@@ -25,10 +25,11 @@ const handleHappyMoments = async (req, res) => {
     const formData = req.body || {};
     console.log('[Happy Moments Form Submitted]:', formData);
 
-    // Dispatch lead email notification to social@mycoffeeco.com
+    // Dispatch lead email notification to target email (default: singhsiddhartha220@gmail.com)
+    const targetEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'singhsiddhartha220@gmail.com';
     try {
-      console.log('[Happy Moments] Forwarding lead notification email to social@mycoffeeco.com...');
-      await fetch('https://formsubmit.co/ajax/social@mycoffeeco.com', {
+      console.log(`[Happy Moments] Forwarding lead notification email to ${targetEmail}...`);
+      await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,7 +42,7 @@ const handleHappyMoments = async (req, res) => {
           ...formData
         })
       });
-      console.log('[Happy Moments] Email notification sent to social@mycoffeeco.com successfully!');
+      console.log(`[Happy Moments] Email notification sent to ${targetEmail} successfully!`);
     } catch (emailErr) {
       console.error('[Happy Moments] Email dispatch error (non-fatal):', emailErr.message);
     }
