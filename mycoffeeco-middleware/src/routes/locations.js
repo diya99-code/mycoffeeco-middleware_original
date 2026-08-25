@@ -13,66 +13,8 @@ console.log('[Locations Router] Loaded. SHOPIFY_DOMAIN:', SHOPIFY_DOMAIN);
 
 const { shopifyPost } = require('../clients/shopifyClient');
 
-const nodemailer = require('nodemailer');
-
-const sendLeadEmail = async (targetEmail, subject, payload) => {
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '465'),
-        secure: true,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
-        }
-      });
-
-      const htmlRows = Object.entries(payload)
-        .filter(([k]) => !k.startsWith('_'))
-        .map(([k, v]) => `<tr><td style="padding:8px;border:1px solid #ddd;"><strong>${k}</strong></td><td style="padding:8px;border:1px solid #ddd;">${v}</td></tr>`)
-        .join('');
-
-      const htmlBody = `
-        <div style="font-family:sans-serif; max-width:600px; margin:0 auto;">
-          <h2 style="color:#17214f;">${subject}</h2>
-          <table style="width:100%; border-collapse:collapse;">
-            ${htmlRows}
-          </table>
-        </div>
-      `;
-
-      await transporter.sendMail({
-        from: `"${payload['Full Name'] || 'My Coffee Co'}" <${process.env.SMTP_USER}>`,
-        to: targetEmail,
-        subject: subject,
-        html: htmlBody
-      });
-      console.log(`[Email Service] Successfully sent email via Nodemailer SMTP to ${targetEmail}`);
-      return true;
-    } catch (smtpErr) {
-      console.error('[Email Service] Nodemailer SMTP failed, trying HTTP fallback:', smtpErr.message);
-    }
-  }
-
-  // HTTP FormSubmit / Web3Forms Fallback
-  try {
-    const res = await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Referer': 'https://mycoffeeco.com'
-      },
-      body: JSON.stringify(payload)
-    });
-    console.log(`[Email Service] FormSubmit API response status: ${res.status}`);
-    return true;
-  } catch (err) {
-    console.error('[Email Service] HTTP email fallback error:', err.message);
-    return false;
-  }
-};
+// Helper slug regex allowing lowercase alphanumeric, hyphens, and underscores
+const isValidSlug = (str) => typeof str === 'string' && /^[a-z0-9_-]+$/i.test(str);
 
 /**
  * Specific GET & POST handler for Happy Moments page / form submission
@@ -89,9 +31,8 @@ const handleHappyMoments = async (req, res) => {
     const oneWord = formData.one_word_description || formData.mood || formData['contact[one_word]'] || formData['contact[How would you describe it in one word?]'] || '';
     const isAnonymous = formData.anonymous || formData.share_anonymous ? 'Yes' : 'No';
 
-    const subject = `🎉 New Happy Moments Story from ${socialHandle !== 'Not provided' ? socialHandle : name}`;
     const formattedPayload = {
-      _subject: subject,
+      _subject: `🎉 New Happy Moments Story from ${socialHandle !== 'Not provided' ? socialHandle : name}`,
       _template: 'table',
       'Social Handle': socialHandle,
       'Full Name': name,
@@ -101,9 +42,23 @@ const handleHappyMoments = async (req, res) => {
       'Share Anonymously': isAnonymous
     };
 
-    // Dispatch lead email notification to target email (default: singhsiddhartha220@gmail.com)
-    const targetEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'singhsiddhartha220@gmail.com';
-    await sendLeadEmail(targetEmail, subject, formattedPayload);
+    // Dispatch lead email notification to target email (default: social@mycoffeeco.com)
+    const targetEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'social@mycoffeeco.com';
+    try {
+      console.log(`[Happy Moments] Forwarding lead notification email (Handle: ${socialHandle}) to ${targetEmail}...`);
+      await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Referer': 'https://mycoffeeco.com'
+        },
+        body: JSON.stringify(formattedPayload)
+      });
+      console.log(`[Happy Moments] Email notification sent to ${targetEmail} successfully!`);
+    } catch (emailErr) {
+      console.error('[Happy Moments] Email dispatch error (non-fatal):', emailErr.message);
+    }
 
     // Sync inquiry & Social Handle to Shopify Admin API if configured
     if (process.env.SHOPIFY_STORE && process.env.SHOPIFY_ACCESS_TOKEN) {
