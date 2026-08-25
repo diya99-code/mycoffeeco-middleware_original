@@ -32,7 +32,8 @@ const handleHappyMoments = async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Referer': 'https://mycoffeeco.com'
         },
         body: JSON.stringify({
           _subject: '🎉 New Happy Moments Form Lead Inquiry - My Coffee Co.',
