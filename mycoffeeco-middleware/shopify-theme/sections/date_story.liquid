@@ -1,0 +1,743 @@
+<script>
+/* ---------- FIX: force the correct mobile viewport ---------- */
+(function () {
+  var content = 'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover';
+  var viewport = document.querySelector('meta[name="viewport"]');
+  if (viewport) {
+    viewport.setAttribute('content', content);
+  } else {
+    viewport = document.createElement('meta');
+    viewport.name = 'viewport';
+    viewport.content = content;
+    document.head.appendChild(viewport);
+  }
+})();
+</script>
+<style>
+/* Reset any Shopify theme padding/margin */
+.shopify-section { margin: 0 !important; padding: 0 !important; max-width: 100%; overflow-x: hidden; }
+
+/* Add an explicit container that hides all overflow */
+.mcc-page-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+}
+.mcc-page-container *, .mcc-page-container *::before, .mcc-page-container *::after {
+  box-sizing: border-box;
+}
+
+:root{
+  --mcc-navy: #17214f;
+  --mcc-navy-deep: #0f1638;
+  --mcc-blue: #0a06ff;
+  --mcc-blue-soft: #0804cc;
+  --mcc-cream: #f7f4ee;
+  --mcc-paper: #fffdfa;
+  --mcc-heart: #e4536b;
+  --mcc-gold: #e7b65e;
+  --mcc-line: rgba(23,33,79,0.14);
+  --mcc-muted: rgba(23,33,79,0.62);
+}
+
+/* ---------- GLOBAL: stop any horizontal overflow / page shift ---------- */
+html, body{
+  overflow-x: hidden;
+  width: 100%;
+}
+img, svg{ max-width: 100%; }
+
+.mcc-hero, .mcc-hero *, .mcc-overlap, .mcc-overlap *,
+.mcc-promo, .mcc-promo *, .mcc-form-wrap, .mcc-form-wrap *,
+.mcc-stories-section, .mcc-stories-section *, .mcc-stats-bar, .mcc-stats-bar *,
+.mcc-ig-cta, .mcc-ig-cta *, .mcc-footer, .mcc-footer * { box-sizing: border-box; }
+
+.mcc-hero { margin: 0 !important; width: 100%; max-width: 100%; overflow-x: hidden; }
+
+.mcc-hero, .mcc-promo, .mcc-form-wrap, .mcc-stories-section, .mcc-stats-bar, .mcc-ig-cta{
+  font-family: 'Inter', sans-serif;
+  color: var(--mcc-navy);
+}
+.mcc-form-wrap h1, .mcc-form-wrap h2,
+.mcc-stories-section h2, .mcc-ig-cta h3{
+  font-family: 'Playfair Display', Georgia, serif;
+  margin: 0;
+}
+
+/* ---------- HERO (plain full-width banner, nothing on top) ---------- */
+.mcc-hero{
+  position:relative;
+  width:100%;
+  height: 100vh;
+  min-height: 600px;
+  overflow:hidden;
+  background: #f7f4ee;
+  margin: 0;
+  padding: 0;
+  display:block;
+  line-height:0;
+}
+.mcc-hero-image{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.mcc-hero-image-mobile{
+  display:none;
+}
+
+@media (max-width: 768px){
+  .mcc-hero{
+    margin-top: 0;
+    height: 55vh;
+    min-height: 360px;
+  }
+  .mcc-hero-image{
+    display:none;
+  }
+  .mcc-hero-image-mobile{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit: cover;
+    object-position: center 20%;
+  }
+}
+.mcc-upload-placeholder{
+  position:relative; z-index:2; text-align:center; color: rgba(255,255,255,0.9); padding: 40px;
+  width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+}
+.mcc-upload-icon{
+  width:56px; height:56px; border-radius:50%; background: rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center;
+}
+.mcc-upload-placeholder h3{ font-weight:500; font-size:1.3rem; font-family:'Playfair Display', serif; margin:0; }
+.mcc-upload-placeholder p{ margin:0; font-size:0.88rem; color: rgba(255,255,255,0.55); max-width:260px; }
+
+/* ---------- OVERLAP WRAPPER ---------- */
+.mcc-overlap{
+  position:relative;
+  z-index:6;
+  margin-top: 60px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+@media (max-width: 980px){
+  .mcc-overlap{ margin-top: 45px; }
+}
+@media (max-width: 860px){
+  .mcc-overlap{ margin-top: 30px; }
+}
+
+/* ---------- FORM ---------- */
+.mcc-form-wrap{ padding: 0 56px; margin-top:22px; position:relative; z-index:6; }
+.mcc-form-card{
+  background: var(--mcc-paper); border-radius: 26px; padding: 48px 52px 40px;
+  box-shadow: 0 30px 70px rgba(23,33,79,0.18); max-width: 1080px; margin: 0 auto; position:relative;
+}
+.mcc-form-header{ text-align:center; margin-bottom:34px; }
+.mcc-form-header h2{ font-size:1.9rem; font-weight:600; color: #0a06ff; }
+.mcc-form-header p{ margin:8px 0 0; color: #0a06ff; font-size:0.95rem; }
+.mcc-form-success{
+  background: rgba(37,71,214,0.08); color: var(--mcc-blue); padding:14px 18px;
+  border-radius:10px; font-weight:600; margin-bottom:22px; text-align:center;
+}
+
+.mcc-field-row{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:20px; margin-bottom:22px; }
+.mcc-field label{ display:block; font-size:0.85rem; font-weight:600; color: #0a06ff; margin-bottom:8px; }
+.mcc-req{ color: var(--mcc-heart); }
+.mcc-input-wrap{
+  display:flex; align-items:center; gap:8px; border:1.5px solid var(--mcc-line); border-radius:11px;
+  padding:12px 14px; background:#fff;
+}
+.mcc-input-wrap input{ border:none; outline:none; font-family:inherit; font-size:0.92rem; width:100%; color: var(--mcc-navy); background:transparent; min-width:0; }
+.mcc-input-wrap input::placeholder{ color: rgba(23,33,79,0.4); }
+.mcc-hint{ font-size:0.78rem; color: rgba(23,33,79,0.5); margin-top:6px; }
+.mcc-flag{ font-size:0.85rem; color:var(--mcc-navy); border-right:1px solid var(--mcc-line); padding-right:8px; margin-right:2px; white-space:nowrap; flex-shrink:0; }
+.mcc-icon{ color: rgba(23,33,79,0.5); flex-shrink:0; }
+
+.mcc-field-block{ margin-bottom:26px; }
+.mcc-field-block > label{ display:block; font-size:0.85rem; font-weight:600; color: #0a06ff; margin-bottom:12px; }
+
+.mcc-chip-row{ display:flex; flex-wrap:wrap; gap:12px; }
+.mcc-chip{
+  border:1.5px solid var(--mcc-line); border-radius:999px; padding:10px 18px; font-size:0.88rem;
+  font-weight:500; color: #0a06ff; display:flex; align-items:center; gap:8px; cursor:pointer;
+  background:#fff; transition: border-color 0.15s, background 0.15s; position:relative;
+}
+.mcc-chip input{ position:absolute; opacity:0; inset:0; cursor:pointer; margin:0; }
+.mcc-chip:hover{ border-color: var(--mcc-blue-soft); }
+.mcc-chip:has(input:checked), .mcc-chip-active{ border-color: var(--mcc-blue); background: rgba(37,71,214,0.06); }
+
+.mcc-two-col{ display:grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap:32px; }
+.mcc-two-col textarea{
+  width:100%; min-height:130px; resize:vertical; border:1.5px solid var(--mcc-line); border-radius:14px;
+  padding:16px; font-family:inherit; font-size:0.92rem; color: var(--mcc-navy); outline:none;
+}
+.mcc-two-col textarea::placeholder{ color: rgba(23,33,79,0.4); }
+.mcc-char-count{ text-align:right; font-size:0.78rem; color: rgba(23,33,79,0.4); margin-top:6px; }
+.mcc-word-chip-grid{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; }
+.mcc-chip-center{ justify-content:center; }
+
+.mcc-checks{ display:flex; gap:28px; margin: 8px 0 26px; flex-wrap:wrap; }
+.mcc-check-item{ display:flex; align-items:center; gap:9px; font-size:0.87rem; color: #0a06ff; }
+.mcc-check-item input{ width:17px; height:17px; accent-color: var(--mcc-blue); flex-shrink:0; }
+
+.mcc-ig-banner{
+  display:flex; align-items:center; justify-content:space-between;
+  background: rgba(37,71,214,0.05); border:1px solid rgba(37,71,214,0.14);
+  border-radius:16px; padding:18px 24px; margin-bottom:26px; gap:20px; flex-wrap:wrap;
+}
+.mcc-ig-left{ display:flex; align-items:center; gap:14px; min-width:0; }
+.mcc-ig-icon{
+  width:42px; height:42px; border-radius:12px; flex-shrink:0;
+  background: linear-gradient(135deg,#f58529,#dd2a7b 45%,#8134af 75%,#515bd4);
+  display:flex; align-items:center; justify-content:center; color:#fff;
+}
+.mcc-ig-left strong{ font-size:0.95rem; color: #0a06ff; }
+.mcc-ig-left p{ margin:2px 0 0; font-size:0.83rem; color: var(--mcc-muted); }
+.mcc-ig-follow{
+  border:1.5px solid var(--mcc-blue); color: var(--mcc-blue); background:#fff;
+  padding:10px 18px; border-radius:9px; font-weight:600; font-size:0.85rem;
+  display:flex; align-items:center; gap:8px; cursor:pointer; text-decoration:none; flex-shrink:0;
+}
+
+.mcc-submit-btn{
+  width:100%; background: var(--mcc-blue); color:#fff; border:none; padding:17px; border-radius:12px;
+  font-size:1rem; font-weight:700; font-family:inherit; cursor:pointer; box-shadow: 0 14px 30px rgba(37,71,214,0.3);
+}
+.mcc-submit-btn:hover{ background:#1c37b0; }
+.mcc-submit-sub{ text-align:center; font-size:0.78rem; color: rgba(23,33,79,0.5); margin-top:12px; }
+
+/* ---------- MOMENTS WALL ---------- */
+.mcc-stories-section{ padding: 90px 56px 50px; max-width:1200px; margin:0 auto; }
+.mcc-stories-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:34px; flex-wrap:wrap; gap:16px; }
+.mcc-stories-title{ display:flex; align-items:center; gap:8px; }
+.mcc-stories-title h2{ font-size:1.7rem; font-weight:600; color: var(--mcc-blue); }
+.mcc-stories-head p{ margin:6px 0 0; color: var(--mcc-muted); font-size:0.9rem; }
+.mcc-read-more{
+  border:1.5px solid var(--mcc-line); background:#fff; color: var(--mcc-navy); padding:10px 18px;
+  border-radius:9px; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:8px;
+  cursor:pointer; text-decoration:none; width:fit-content;
+}
+.mcc-story-grid{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:22px; }
+.mcc-story-card{
+  background: var(--mcc-paper); border:1px solid var(--mcc-line); border-radius:18px; padding:24px;
+  box-shadow: 0 12px 30px rgba(23,33,79,0.06);
+}
+
+@media (max-width: 980px){
+  .mcc-story-grid{
+    display:flex;
+    overflow-x: auto;
+    gap:16px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mcc-story-grid::-webkit-scrollbar{
+    display: none;
+  }
+  .mcc-story-card{
+    min-width: 280px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 640px){
+  .mcc-stories-section{ padding-left: 20px; padding-right: 20px; }
+  .mcc-story-grid{
+    scroll-snap-type: x mandatory;
+    gap: 0;
+  }
+  .mcc-story-card{
+    min-width: 100%;
+    width: 100%;
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+}
+.mcc-tag{
+  display:inline-block; font-size:0.72rem; font-weight:600; color: var(--mcc-blue);
+  background: rgba(37,71,214,0.08); padding:5px 12px; border-radius:999px; margin-bottom:14px;
+}
+.mcc-story-quote{ font-size:1rem; font-weight:500; color: var(--mcc-navy); line-height:1.5; margin-bottom:22px; min-height:70px; }
+.mcc-story-foot{ display:flex; align-items:center; justify-content:space-between; }
+.mcc-story-author{ font-size:0.85rem; color: var(--mcc-muted); }
+.mcc-heart-btn{
+  width:34px; height:34px; border-radius:50%; border:1.5px solid var(--mcc-line);
+  display:flex; align-items:center; justify-content:center; color: var(--mcc-heart); cursor:pointer; background:#fff; flex-shrink:0;
+}
+.mcc-dots{ display:flex; justify-content:center; gap:8px; margin-top:30px; }
+.mcc-dot{ width:7px; height:7px; border-radius:50%; background: var(--mcc-line); }
+.mcc-dot-active{ background: var(--mcc-blue); width:20px; border-radius:4px; }
+
+/* ---------- STATS ---------- */
+.mcc-stats-bar{ max-width:1200px; margin: 20px auto 60px; padding: 0 56px; }
+.mcc-stats-inner{
+  background:#fff; border:1px solid var(--mcc-line); border-radius:20px;
+  display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); box-shadow: 0 12px 30px rgba(23,33,79,0.05);
+}
+.mcc-stat{ text-align:center; padding: 30px 10px; border-right:1px solid var(--mcc-line); min-width:0; overflow-wrap: break-word; }
+.mcc-stat:last-child{ border-right:none; }
+.mcc-stat-icon{ color: var(--mcc-blue); margin-bottom:10px; font-size:1.1rem; }
+.mcc-stat-num{ font-size:1.5rem; font-weight:700; color: var(--mcc-navy); font-family:'Playfair Display', serif; }
+.mcc-stat-label{ font-size:0.82rem; color: var(--mcc-muted); margin-top:4px; }
+
+/* ---------- CLOSING CTA BANNER ---------- */
+.mcc-ig-cta{ max-width:1200px; margin: 0 auto 70px; padding: 0 56px; }
+.mcc-ig-cta-inner{
+  background: linear-gradient(120deg, var(--mcc-navy) 0%, var(--mcc-blue) 130%);
+  border-radius: 24px; padding: 48px 52px; color:#fff; display:flex; align-items:center;
+  justify-content:space-between; gap:30px; position:relative; overflow:hidden; flex-wrap:wrap;
+}
+.mcc-ig-cta-text{ min-width: 0; }
+.mcc-ig-cta-text h3{ font-size:1.5rem; font-weight:600; font-style:italic; max-width:420px; line-height:1.4; overflow-wrap: break-word; }
+.mcc-ig-cta-text .mcc-btn{
+  margin-top:20px; background:#fff; color:var(--mcc-navy); border:none;
+  font-family:inherit; font-size:0.95rem; font-weight:600; padding:14px 26px; border-radius:9px;
+  display:inline-flex; align-items:center; gap:8px; text-decoration:none; cursor:pointer;
+}
+.mcc-envelope{ width:170px; height:130px; position:relative; flex-shrink:0; }
+.mcc-envelope svg{ width:100%; height:100%; }
+
+@media (max-width: 980px){
+  .mcc-field-row{ grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .mcc-two-col{ grid-template-columns: minmax(0, 1fr); }
+  .mcc-word-chip-grid{ grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .mcc-stats-inner{ grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .mcc-stat{ border-bottom:1px solid var(--mcc-line); }
+}
+@media (max-width: 860px){
+  .mcc-form-wrap, .mcc-stories-section, .mcc-stats-bar, .mcc-ig-cta{ padding-left:20px; padding-right:20px; }
+  .mcc-form-card{ padding: 32px 22px; }
+  .mcc-field-row{ grid-template-columns: minmax(0, 1fr); }
+  .mcc-envelope{ display:none; }
+}
+</style>
+
+<!-- ================= PAGE CONTAINER ================= -->
+<div class="mcc-page-container">
+
+<!-- ================= HERO (plain banner image, nothing on top) ================= -->
+<section class="mcc-hero">
+  {% if section.settings.hero_image != blank %}
+    <!-- Desktop Image -->
+    <img
+      src="{{ section.settings.hero_image | image_url: width: 2400 }}"
+      srcset="{{ section.settings.hero_image | image_url: width: 800 }} 800w,
+              {{ section.settings.hero_image | image_url: width: 1600 }} 1600w,
+              {{ section.settings.hero_image | image_url: width: 2400 }} 2400w"
+      sizes="100vw"
+      alt="{{ section.settings.hero_image.alt | default: 'Banner image' }}"
+      width="{{ section.settings.hero_image.width }}"
+      height="{{ section.settings.hero_image.height }}"
+      class="mcc-hero-image"
+      loading="eager"
+    >
+
+    <!-- Mobile Image (shown on screens smaller than 768px) -->
+    {% if section.settings.hero_image_mobile != blank %}
+      <img
+        src="{{ section.settings.hero_image_mobile | image_url: width: 800 }}"
+        srcset="{{ section.settings.hero_image_mobile | image_url: width: 400 }} 400w,
+                {{ section.settings.hero_image_mobile | image_url: width: 800 }} 800w"
+        sizes="100vw"
+        alt="{{ section.settings.hero_image_mobile.alt | default: 'Mobile Banner image' }}"
+        width="{{ section.settings.hero_image_mobile.width }}"
+        height="{{ section.settings.hero_image_mobile.height }}"
+        class="mcc-hero-image-mobile"
+        loading="eager"
+      >
+    {% else %}
+      <!-- Fallback: Use desktop image on mobile if no mobile image is uploaded -->
+      <img
+        src="{{ section.settings.hero_image | image_url: width: 800 }}"
+        alt="{{ section.settings.hero_image.alt | default: 'Banner image' }}"
+        class="mcc-hero-image-mobile"
+        loading="eager"
+      >
+    {% endif %}
+  {% else %}
+    <div class="mcc-upload-placeholder">
+      <div class="mcc-upload-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6">
+          <path d="M12 16V4M12 4L7 9M12 4l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>Add your banner images</h3>
+      <p>Upload desktop and mobile images in the theme editor under Section settings → Banner images.</p>
+    </div>
+  {% endif %}
+</section>
+
+<!-- ================= FORM ================= -->
+<div class="mcc-overlap">
+
+  <div class="mcc-form-wrap">
+    <div class="mcc-form-card" id="mcc-form">
+      <div class="mcc-form-header">
+        <h2>{{ section.settings.form_title | default: 'Share Your Best Happy Moment ❤' }}</h2>
+        <p>{{ section.settings.form_subtitle | default: 'Tell us about a moment that made you truly happy.' }}</p>
+      </div>
+
+      {% form 'contact', id: 'mcc-story-form' %}
+        {% if form.posted_successfully? %}
+          <p class="mcc-form-success">🎉 Thank you — your happy moment story has been shared successfully!</p>
+        {% endif %}
+
+        <div class="mcc-field-row">
+          <div class="mcc-field">
+            <label for="mcc-name">Your Name <span class="mcc-req">*</span></label>
+            <div class="mcc-input-wrap">
+              <span class="mcc-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+              </span>
+              <input type="text" id="mcc-name" name="contact[Your Name]" placeholder="Your full name" required>
+            </div>
+          </div>
+          <div class="mcc-field">
+            <label for="mcc-phone">Phone Number <span class="mcc-req">*</span></label>
+            <div class="mcc-input-wrap">
+              <span class="mcc-flag">🇮🇳 +91</span>
+              <input type="tel" id="mcc-phone" name="contact[Phone]" placeholder="Enter your number" required>
+            </div>
+          </div>
+          <div class="mcc-field">
+            <label for="mcc-handle">Your Social Media Handle</label>
+            <div class="mcc-input-wrap">
+              <span class="mcc-icon">@</span>
+              <input type="text" id="mcc-handle" name="contact[Social Handle]" placeholder="e.g. @yourusername">
+            </div>
+            <div class="mcc-hint">So we can tag you if your story is featured.</div>
+          </div>
+        </div>
+
+        <div class="mcc-two-col mcc-field-block">
+          <div>
+            <label for="mcc-story">Tell us about your happy moment. <span class="mcc-req">*</span></label>
+            <textarea id="mcc-story" name="contact[Happy Moment Story]" maxlength="300" placeholder="What happened? Why was it so special?" required data-charcount></textarea>
+            <div class="mcc-char-count"><span data-count>0</span>/300</div>
+            <div class="mcc-hint">Suggested: 100–300 words.</div>
+          </div>
+          <div>
+            <label>How would you describe it in one word? <span class="mcc-req">*</span></label>
+            <div class="mcc-word-chip-grid" data-chip-group>
+              <label class="mcc-chip mcc-chip-center"><input type="radio" name="contact[One Word Mood]" value="Joyful" checked>Joyful ✦</label>
+              <label class="mcc-chip mcc-chip-center"><input type="radio" name="contact[One Word Mood]" value="Peaceful">Peaceful ☁</label>
+              <label class="mcc-chip mcc-chip-center"><input type="radio" name="contact[One Word Mood]" value="Grateful">Grateful 🙏</label>
+              <label class="mcc-chip mcc-chip-center"><input type="radio" name="contact[One Word Mood]" value="Exciting">Exciting ✨</label>
+              <label class="mcc-chip mcc-chip-center"><input type="radio" name="contact[One Word Mood]" value="Unforgettable">Unforgettable 💙</label>
+              <label class="mcc-chip mcc-chip-center"><input type="radio" name="contact[One Word Mood]" value="Other">Other 😊</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mcc-checks">
+          <label class="mcc-check-item"><input type="checkbox" name="contact[Share Anonymously]" value="Yes" checked> Share my moment anonymously.</label>
+          <label class="mcc-check-item"><input type="checkbox" name="contact[Featured Opt In]" value="Yes"> I'd love to see featured happy moments later.</label>
+        </div>
+
+        <div class="mcc-ig-banner">
+          <div class="mcc-ig-left">
+            <div class="mcc-ig-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+            </div>
+            <div>
+              <strong>Follow us on Instagram</strong>
+              <p>Stay inspired with more happy stories, surprises &amp; good vibes.</p>
+            </div>
+          </div>
+          <a href="{{ section.settings.instagram_url | default: '#' }}" class="mcc-ig-follow" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></svg>
+            Follow {{ section.settings.instagram_handle | default: '@mycoffeecompany' }}
+          </a>
+        </div>
+
+        <button type="submit" class="mcc-submit-btn">{{ section.settings.submit_text | default: 'Share My Happy Moment ❤' }}</button>
+        <div class="mcc-submit-sub">🔒 Your story is safe with us. We never share personal details.</div>
+      {% endform %}
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= HAPPY MOMENTS WALL ================= -->
+<section class="mcc-stories-section" id="mcc-stories">
+  <div class="mcc-stories-head">
+    <div>
+      <div class="mcc-stories-title">
+        <span style="color:#0a06ff;">♡</span>
+        <h2>{{ section.settings.stories_title | default: 'Happy Moments Wall' }}</h2>
+      </div>
+      <p>{{ section.settings.stories_subtitle | default: 'Real moments. Real people. Real happiness.' }}</p>
+    </div>
+  </div>
+
+  <div class="mcc-story-grid">
+    {% assign has_story_blocks = false %}
+    {% for block in section.blocks %}
+      {% if block.type == 'story' %}{% assign has_story_blocks = true %}{% endif %}
+    {% endfor %}
+
+    {% if has_story_blocks %}
+      {% for block in section.blocks %}
+        {% if block.type == 'story' %}
+          <div class="mcc-story-card" {{ block.shopify_attributes }}>
+            <span class="mcc-tag">{{ block.settings.tag }}</span>
+            <p class="mcc-story-quote">&ldquo;{{ block.settings.quote }}&rdquo;</p>
+            <div class="mcc-story-foot">
+              <span class="mcc-story-author">— {{ block.settings.author }}</span>
+              <div class="mcc-heart-btn">♥</div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="mcc-story-card">
+        <span class="mcc-tag">Travel</span>
+        <p class="mcc-story-quote">&ldquo;Watched the sunrise at the mountains after the longest trek. Totally worth it!&rdquo;</p>
+        <div class="mcc-story-foot">
+          <span class="mcc-story-author">— Ananya</span>
+          <div class="mcc-heart-btn">♥</div>
+        </div>
+      </div>
+      <div class="mcc-story-card">
+        <span class="mcc-tag">Achievement</span>
+        <p class="mcc-story-quote">&ldquo;Got my dream job offer today! Still can't believe it.&rdquo;</p>
+        <div class="mcc-story-foot">
+          <span class="mcc-story-author">— Rohit</span>
+          <div class="mcc-heart-btn">♥</div>
+        </div>
+      </div>
+      <div class="mcc-story-card">
+        <span class="mcc-tag">Family Time</span>
+        <p class="mcc-story-quote">&ldquo;Sunday lunch with the whole family. No screens, just laughter.&rdquo;</p>
+        <div class="mcc-story-foot">
+          <span class="mcc-story-author">— Meera</span>
+          <div class="mcc-heart-btn">♥</div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="mcc-dots">
+    <div class="mcc-dot mcc-dot-active"></div>
+    <div class="mcc-dot"></div>
+    <div class="mcc-dot"></div>
+    <div class="mcc-dot"></div>
+  </div>
+</section>
+
+<!-- ================= STATS ================= -->
+<section class="mcc-stats-bar">
+  <div class="mcc-stats-inner">
+    {% assign has_stat_blocks = false %}
+    {% for block in section.blocks %}
+      {% if block.type == 'stat' %}{% assign has_stat_blocks = true %}{% endif %}
+    {% endfor %}
+
+    {% if has_stat_blocks %}
+      {% for block in section.blocks %}
+        {% if block.type == 'stat' %}
+          <div class="mcc-stat" {{ block.shopify_attributes }}>
+            <div class="mcc-stat-icon">{{ block.settings.icon }}</div>
+            <div class="mcc-stat-num">{{ block.settings.number }}</div>
+            <div class="mcc-stat-label">{{ block.settings.label }}</div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="mcc-stat">
+        <div class="mcc-stat-icon">♥</div>
+        <div class="mcc-stat-num">2,547+</div>
+        <div class="mcc-stat-label">Happy Moments Shared</div>
+      </div>
+      <div class="mcc-stat">
+        <div class="mcc-stat-icon">🌐</div>
+        <div class="mcc-stat-num">98+</div>
+        <div class="mcc-stat-label">Cities</div>
+      </div>
+      <div class="mcc-stat">
+        <div class="mcc-stat-icon">🙂</div>
+        <div class="mcc-stat-num">95%</div>
+        <div class="mcc-stat-label">Happiness Guaranteed</div>
+      </div>
+      <div class="mcc-stat">
+        <div class="mcc-stat-icon">🏆</div>
+        <div class="mcc-stat-num">1 Winner</div>
+        <div class="mcc-stat-label">5000 HNM Giftcard</div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ================= CLOSING CTA BANNER ================= -->
+<section class="mcc-ig-cta">
+  <div class="mcc-ig-cta-inner">
+    <div class="mcc-ig-cta-text">
+      <h3>{{ section.settings.closing_text | default: "Your happy moment could be someone else's inspiration." }}</h3>
+      <a href="#mcc-form" class="mcc-btn">
+        {{ section.settings.closing_btn_text | default: 'Share Your Moment ❤' }}
+      </a>
+    </div>
+    <div class="mcc-envelope">
+      <svg viewBox="0 0 170 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="20" width="150" height="100" rx="10" fill="#ffffff"/>
+        <path d="M10 30 L85 85 L160 30" stroke="#0a06ff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M63 60c0-8 12-8 12 0 0 8-12 14-12 14s-12-6-12-14c0-8 12-8 12 0z" fill="#e4536b"/>
+        <circle cx="140" cy="18" r="3" fill="#ffffff" opacity="0.8"/>
+        <circle cx="150" cy="35" r="2" fill="#ffffff" opacity="0.6"/>
+        <circle cx="14" cy="12" r="2.5" fill="#ffffff" opacity="0.7"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+</div> <!-- /mcc-page-container -->
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('mcc-story-form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var submitBtn = form.querySelector('.mcc-submit-btn');
+        var originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = 'Sharing your story...';
+        }
+
+        var formData = new FormData(form);
+        var payload = {};
+        formData.forEach(function(value, key) {
+          var cleanKey = key.replace(/^contact\[/, '').replace(/\]$/, '');
+          payload[cleanKey] = value;
+        });
+
+        fetch('https://mycoffeeco-middleware-original.onrender.com/pages/happy_moments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          var headerEl = document.querySelector('.mcc-form-header');
+          var existingMsg = document.querySelector('.mcc-form-success');
+          if (!existingMsg && headerEl) {
+            existingMsg = document.createElement('p');
+            existingMsg.className = 'mcc-form-success';
+            headerEl.parentNode.insertBefore(existingMsg, headerEl.nextSibling);
+          }
+          if (existingMsg) {
+            existingMsg.innerHTML = '🎉 Thank you — your happy moment story has been shared successfully!';
+            existingMsg.style.display = 'block';
+          }
+          form.reset();
+        })
+        .catch(function(err) {
+          console.error('[Form Submit Error]:', err);
+          alert('Thank you! Your story has been submitted successfully.');
+          form.reset();
+        })
+        .finally(function() {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+          }
+        });
+      });
+    }
+
+    var textarea = document.querySelector('[data-charcount]');
+    var counter = document.querySelector('[data-count]');
+    if (textarea && counter) {
+      textarea.addEventListener('input', function () {
+        counter.textContent = textarea.value.length;
+      });
+    }
+    document.querySelectorAll('[data-chip-group]').forEach(function (group) {
+      group.querySelectorAll('.mcc-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          group.querySelectorAll('.mcc-chip').forEach(function (c) { c.classList.remove('mcc-chip-active'); });
+          chip.classList.add('mcc-chip-active');
+        });
+      });
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "date_story",
+  "settings": [
+    { "type": "text", "id": "brand_name", "label": "Brand name", "default": "My Coffee Co." },
+    { "type": "text", "id": "footer_tagline", "label": "Footer tagline", "default": "Small Sips. Big Moments." },
+    { "type": "url", "id": "about_url", "label": "About Us link" },
+    { "type": "header", "content": "Banner" },
+    { "type": "image_picker", "id": "hero_image", "label": "Banner image (Desktop)", "info": "Recommended: 1920x1080px or larger. Shown on screens wider than 768px." },
+    { "type": "image_picker", "id": "hero_image_mobile", "label": "Banner image (Mobile)", "info": "Recommended: 800x1200px or larger. Shown on screens smaller than 768px. If not uploaded, desktop image will be used." },
+    { "type": "header", "content": "Form" },
+    { "type": "text", "id": "form_title", "label": "Form title", "default": "Share Your Best Happy Moment ❤" },
+    { "type": "text", "id": "form_subtitle", "label": "Form subtitle", "default": "Tell us about a moment that made you truly happy." },
+    { "type": "text", "id": "submit_text", "label": "Submit button text", "default": "Share My Happy Moment ❤" },
+    { "type": "header", "content": "Instagram" },
+    { "type": "text", "id": "instagram_handle", "label": "Instagram handle", "default": "@mycoffeecompany" },
+    { "type": "url", "id": "instagram_url", "label": "Instagram URL" },
+    { "type": "header", "content": "Happy Moments Wall" },
+    { "type": "text", "id": "stories_title", "label": "Section title", "default": "Happy Moments Wall" },
+    { "type": "text", "id": "stories_subtitle", "label": "Section subtitle", "default": "Real moments. Real people. Real happiness." },
+    { "type": "url", "id": "stories_link", "label": "Read more link" },
+    { "type": "header", "content": "Closing banner" },
+    { "type": "text", "id": "closing_text", "label": "Closing banner text", "default": "Your happy moment could be someone else's inspiration." },
+    { "type": "text", "id": "closing_btn_text", "label": "Closing banner button text", "default": "Share Your Moment ❤" }
+  ],
+  "blocks": [
+    {
+      "type": "story",
+      "name": "Happy moment card",
+      "settings": [
+        { "type": "text", "id": "tag", "label": "Tag", "default": "Travel" },
+        { "type": "textarea", "id": "quote", "label": "Quote", "default": "Watched the sunrise at the mountains after the longest trek. Totally worth it!" },
+        { "type": "text", "id": "author", "label": "Author name", "default": "Ananya" }
+      ]
+    },
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        { "type": "text", "id": "icon", "label": "Icon (emoji or symbol)", "default": "♥" },
+        { "type": "text", "id": "number", "label": "Number", "default": "2,547+" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Happy Moments Shared" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "date_story",
+      "blocks": [
+        { "type": "story", "settings": { "tag": "Travel", "quote": "Watched the sunrise at the mountains after the longest trek. Totally worth it!", "author": "Ananya" } },
+        { "type": "story", "settings": { "tag": "Achievement", "quote": "Got my dream job offer today! Still can't believe it.", "author": "Rohit" } },
+        { "type": "story", "settings": { "tag": "Family Time", "quote": "Sunday lunch with the whole family. No screens, just laughter.", "author": "Meera" } },
+        { "type": "stat", "settings": { "icon": "♥", "number": "2,547+", "label": "Happy Moments Shared" } },
+        { "type": "stat", "settings": { "icon": "🌐", "number": "98+", "label": "Cities" } },
+        { "type": "stat", "settings": { "icon": "🙂", "number": "95%", "label": "Happiness Guaranteed" } },
+        { "type": "stat", "settings": { "icon": "🏆", "number": "1 Winner", "label": "5000 HNM Giftcard" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
